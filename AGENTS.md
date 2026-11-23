@@ -228,6 +228,12 @@ space 4/8/12/16/24/32/48 · radius 12/999 · meter 2px · touch 44
 - Komentar Bahasa Indonesia, singkat, jelaskan **kenapa**, bukan apa.
 - Jangan menambah komentar TODO tanpa tanggal/nama batch.
 - Format uang lewat `AmountText`/`formatRp`; jangan `toLocaleString`.
+- **Commit selalu atas nama pemilik repo**: `Avalntinus <azaryaenka@gmail.com>`
+  (sudah di-set di config lokal). Jangan mengubah `git config user.*`.
+- **Dilarang menambahkan atribusi AI** di pesan commit/PR: `Co-authored-by:`,
+  `Assisted-by:`, `Generated with ...` yang menyebut Claude/ChatGPT/Copilot/
+  Gemini/Codex/Cursor/OpenCode/Antigravity. Hook `commit-msg` membuangnya otomatis;
+  pasang ulang dengan `bash scripts/install-git-hooks.sh`.
 
 ## 10. Jebakan yang sudah memakan waktu
 
