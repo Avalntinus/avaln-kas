@@ -70,6 +70,13 @@ adb shell am start -a android.intent.action.VIEW -d "exp://127.0.0.1:8081"
 Web **tidak didukung** — `expo-sqlite` di web butuh wasm + header COOP/COEP,
 dan target app ini native.
 
+## Install APK
+
+APK rilis (universal, ±102 MB) tersedia di
+[Releases](https://github.com/Avalntinus/avaln-kas/releases).
+
+Atau build sendiri — butuh JDK 21 + Android SDK (lihat [BUILD.md](BUILD.md)).
+
 ## Perintah
 
 ```bash
@@ -110,8 +117,8 @@ tanggal `YYYY-MM-DD`, logika rollover tetap murni, warna hanya dari token.
 - [x] Tambah cepat (parser lokal, offline)
 - [x] Integrasi Gemini Flash (opsional, key di SecureStore, output divalidasi)
 - [x] Layar rincian minggu (7 hari + carry)
+- [x] Build APK rilis (keystore sendiri, standalone tanpa Metro)
 - [ ] Aktifkan AI dengan API key pribadi
-- [ ] Build APK (JDK 21 + EAS/prebuild)
 
 ## Lisensi
 

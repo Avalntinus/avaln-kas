@@ -107,6 +107,25 @@ adb shell am start -a android.intent.action.VIEW -d "exp://127.0.0.1:8081"
 - Uji UI otomatis: `uiautomator dump` (baca `text` + `content-desc`) → `input tap`
   koordinat → `screencap`. Beri jeda 1–2 detik.
 
+### Build APK
+
+Panduan lengkap: `BUILD.md`. Ringkasnya:
+
+```bash
+export JAVA_HOME="$HOME/.jdks/jdk-21.0.13.1+2"   # JDK 21, bukan 25
+export ANDROID_HOME="$HOME/Android/Sdk"
+cd android && ./gradlew assembleRelease
+# hasil: android/app/build/outputs/apk/release/app-release.apk
+```
+
+- `android/` di-generate (`npx expo prebuild`) dan **tidak masuk git**.
+- Keystore rilis: `~/.android/avaln-kas-release.keystore`; kredensial di
+  `~/.android/avaln-kas-keystore.txt`; `android/keystore.properties` (chmod 600).
+  Jangan pernah commit keystore/password.
+- SDK yang dibutuhkan: platform 36, build-tools 36.0.0, NDK 27.1.12297006,
+  CMake 3.22.1.
+- `prebuild --clean` menghapus konfigurasi signing; ulangi langkah di BUILD.md.
+
 ## 5. Peta arsitektur
 
 ```
@@ -289,7 +308,7 @@ Berikutnya, berurutan:
 
 1. **Aktifkan AI:** pemilik memasukkan API key Gemini di Setelan (belum diisi).
    Kode, validasi, dan fallback sudah ada; tanpa key tetap lokal.
-2. APK: JDK 21 + `expo prebuild` + EAS (atau build lokal).
+2. APK rilis sudah jadi (lihat `BUILD.md`); naikkan `versionCode` untuk update.
 
 Jangan mulai fitur baru di luar daftar ini tanpa bertanya ke pemilik.
 
