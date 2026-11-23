@@ -10,6 +10,12 @@ SQLite device, backup lewat file JSON.
 > Status: **prototype**. Batch A + B selesai (fondasi, rolling budget, DB v3,
 > onboarding, tambah/edit, riwayat, setelan, backup). AI menyusul.
 
+<p align="center">
+  <img src="docs/screenshots/home.png" width="240" alt="Home — sisa hari ini dan meter mingguan" />
+  <img src="docs/screenshots/add.png" width="240" alt="Tambah pengeluaran dengan keypad IDR" />
+  <img src="docs/screenshots/history.png" width="240" alt="Riwayat dikelompokkan per minggu dan hari" />
+</p>
+
 ## Fitur
 
 - **Rolling budget** harian dan mingguan, mode debt + `debt_floor`
@@ -92,10 +98,11 @@ tanggal `YYYY-MM-DD`, logika rollover tetap murni, warna hanya dari token.
 
 ## Roadmap
 
+- [x] Ikon aplikasi (paper + emerald, monogram A + meter)
+- [x] Screenshot di README
 - [ ] Batch C: bantuan AI (Gemini Flash) — saran kategori & ringkasan, key di SecureStore
 - [ ] Layar ringkasan mingguan (7 bar)
 - [ ] Build APK (JDK 21 + EAS/prebuild)
-- [ ] Screenshot di README
 
 ## Lisensi
 

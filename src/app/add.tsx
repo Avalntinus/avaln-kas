@@ -311,7 +311,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   chip: {
-    paddingHorizontal: space.lg,
+    paddingHorizontal: space.md,
     paddingVertical: space.sm,
     borderRadius: radius.full,
     borderWidth: size.hairline,
