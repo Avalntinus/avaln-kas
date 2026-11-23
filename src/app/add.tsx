@@ -1,14 +1,7 @@
-import { router, useLocalSearchParams } from "expo-router";
-import { useEffect, useState } from "react";
-import {
-  Pressable,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TextInput,
-  View,
-} from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
+import { router, useLocalSearchParams } from 'expo-router';
+import { useEffect, useState } from 'react';
+import { Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 import {
   addTransaction,
@@ -17,10 +10,10 @@ import {
   updateTransaction,
   type Category,
   type TransactionKind,
-} from "@/db/repo";
-import { digitsToAmount, formatRp, normalizeNote } from "@/lib/money";
-import { color, radius, size, space, type } from "@/theme/tokens";
-import { MoneyPad } from "@/ui/money-pad";
+} from '@/db/repo';
+import { digitsToAmount, formatRp, normalizeNote } from '@/lib/money';
+import { color, radius, size, space, type } from '@/theme/tokens';
+import { MoneyPad } from '@/ui/money-pad';
 
 const MAX_DIGITS = 12;
 
@@ -28,9 +21,9 @@ export default function AddScreen() {
   const params = useLocalSearchParams<{ id?: string }>();
   const editingId = params.id ? Number(params.id) : null;
 
-  const [kind, setKind] = useState<TransactionKind>("expense");
-  const [digits, setDigits] = useState("");
-  const [note, setNote] = useState("");
+  const [kind, setKind] = useState<TransactionKind>('expense');
+  const [digits, setDigits] = useState('');
+  const [note, setNote] = useState('');
   const [categories, setCategories] = useState<Category[]>([]);
   const [categoryId, setCategoryId] = useState<number | null>(null);
   const [saving, setSaving] = useState(false);
@@ -62,16 +55,16 @@ export default function AddScreen() {
 
   const amount = digitsToAmount(digits);
   const canSave = amount > 0 && !saving;
-  const isIncome = kind === "income";
+  const isIncome = kind === 'income';
 
   function handleDigit(key: string) {
-    if (key === "⌫") {
+    if (key === '⌫') {
       setDigits((current) => current.slice(0, -1));
       return;
     }
 
     setDigits((current) => {
-      const next = (current + key).replace(/^0+(?=\d)/, "");
+      const next = (current + key).replace(/^0+(?=\d)/, '');
       return next.length > MAX_DIGITS ? current : next;
     });
   }
@@ -100,18 +93,14 @@ export default function AddScreen() {
   }
 
   return (
-    <SafeAreaView edges={["top", "bottom"]} style={styles.safe}>
+    <SafeAreaView edges={['top', 'bottom']} style={styles.safe}>
       <View style={styles.container}>
         <View style={styles.header}>
-          <Pressable
-            accessibilityRole="button"
-            onPress={() => router.back()}
-            hitSlop={space.md}
-          >
+          <Pressable accessibilityRole="button" onPress={() => router.back()} hitSlop={space.md}>
             <Text style={styles.cancel}>Batal</Text>
           </Pressable>
           <Text style={styles.label}>
-            {editingId ? "Ubah" : isIncome ? "Pemasukan" : "Pengeluaran"}
+            {editingId ? 'Ubah' : isIncome ? 'Pemasukan' : 'Pengeluaran'}
           </Text>
           <Pressable
             accessibilityRole="button"
@@ -119,14 +108,12 @@ export default function AddScreen() {
             disabled={!canSave}
             hitSlop={space.md}
           >
-            <Text style={[styles.save, !canSave && styles.saveDisabled]}>
-              Simpan
-            </Text>
+            <Text style={[styles.save, !canSave && styles.saveDisabled]}>Simpan</Text>
           </Pressable>
         </View>
 
         <View style={styles.segment}>
-          {(["expense", "income"] as const).map((value) => {
+          {(['expense', 'income'] as const).map((value) => {
             const selected = value === kind;
             return (
               <Pressable
@@ -134,18 +121,10 @@ export default function AddScreen() {
                 accessibilityRole="button"
                 accessibilityState={{ selected }}
                 onPress={() => setKind(value)}
-                style={[
-                  styles.segmentItem,
-                  selected && styles.segmentItemSelected,
-                ]}
+                style={[styles.segmentItem, selected && styles.segmentItemSelected]}
               >
-                <Text
-                  style={[
-                    styles.segmentText,
-                    selected && styles.segmentTextSelected,
-                  ]}
-                >
-                  {value === "expense" ? "Pengeluaran" : "Pemasukan"}
+                <Text style={[styles.segmentText, selected && styles.segmentTextSelected]}>
+                  {value === 'expense' ? 'Pengeluaran' : 'Pemasukan'}
                 </Text>
               </Pressable>
             );
@@ -159,14 +138,13 @@ export default function AddScreen() {
               numberOfLines={1}
               adjustsFontSizeToFit
             >
-              {digits === "" ? "Rp 0" : formatRp(amount)}
+              {digits === '' ? 'Rp 0' : formatRp(amount)}
             </Text>
           </View>
 
           {isIncome ? (
             <Text style={styles.incomeHint}>
-              Pemasukan menambah budget minggu ini, sisanya ikut terbawa ke
-              minggu depan.
+              Pemasukan menambah budget minggu ini, sisanya ikut terbawa ke minggu depan.
             </Text>
           ) : (
             <ScrollView
@@ -184,12 +162,7 @@ export default function AddScreen() {
                     onPress={() => setCategoryId(category.id)}
                     style={[styles.chip, selected && styles.chipSelected]}
                   >
-                    <Text
-                      style={[
-                        styles.chipText,
-                        selected && styles.chipTextSelected,
-                      ]}
-                    >
+                    <Text style={[styles.chipText, selected && styles.chipTextSelected]}>
                       {category.name}
                     </Text>
                   </Pressable>
@@ -201,9 +174,7 @@ export default function AddScreen() {
           <TextInput
             value={note}
             onChangeText={setNote}
-            placeholder={
-              isIncome ? "Sumber (gaji, bonus, …)" : "Catatan (opsional)"
-            }
+            placeholder={isIncome ? 'Sumber (gaji, bonus, …)' : 'Catatan (opsional)'}
             placeholderTextColor={color.ink3}
             style={styles.note}
             maxLength={120}
@@ -224,17 +195,17 @@ const styles = StyleSheet.create({
   },
   container: {
     flex: 1,
-    width: "100%",
+    width: '100%',
     maxWidth: 520,
-    alignSelf: "center",
+    alignSelf: 'center',
     paddingHorizontal: space.xl,
     paddingTop: space.lg,
     paddingBottom: space.md,
   },
   header: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
     minHeight: size.touch,
   },
   label: {
@@ -248,13 +219,13 @@ const styles = StyleSheet.create({
   save: {
     ...type.meta,
     color: color.ink,
-    fontWeight: "600",
+    fontWeight: '600',
   },
   saveDisabled: {
     color: color.ink3,
   },
   segment: {
-    flexDirection: "row",
+    flexDirection: 'row',
     marginTop: space.md,
     padding: 2,
     borderRadius: radius.full,
@@ -264,8 +235,8 @@ const styles = StyleSheet.create({
     flex: 1,
     minHeight: 36,
     borderRadius: radius.full,
-    alignItems: "center",
-    justifyContent: "center",
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   segmentItemSelected: {
     backgroundColor: color.surface,
@@ -276,21 +247,21 @@ const styles = StyleSheet.create({
   },
   segmentTextSelected: {
     color: color.ink,
-    fontWeight: "600",
+    fontWeight: '600',
   },
   form: {
     flex: 1,
-    justifyContent: "center",
+    justifyContent: 'center',
   },
   amountBlock: {
-    alignItems: "center",
+    alignItems: 'center',
   },
   amount: {
     ...type.display,
     fontSize: 40,
     lineHeight: 48,
     color: color.ink,
-    textAlign: "center",
+    textAlign: 'center',
   },
   amountIncome: {
     color: color.accent,
@@ -308,7 +279,7 @@ const styles = StyleSheet.create({
   chips: {
     gap: space.sm,
     paddingVertical: space.lg,
-    alignItems: "center",
+    alignItems: 'center',
   },
   chip: {
     paddingHorizontal: space.md,

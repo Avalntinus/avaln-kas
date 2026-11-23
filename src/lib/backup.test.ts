@@ -54,7 +54,11 @@ describe('parseBackup', () => {
   it('menerima file yang valid', () => {
     const backup = parseBackup(JSON.stringify(valid()));
     expect(backup.transactions).toHaveLength(2);
-    expect(backup.transactions[1]).toMatchObject({ kind: 'income', amount: 500000, category: null });
+    expect(backup.transactions[1]).toMatchObject({
+      kind: 'income',
+      amount: 500000,
+      category: null,
+    });
     expect(backup.settings.weeklyBudget).toBe(210000);
     expect(backup.categories).toEqual(['Makan', 'Transport']);
   });
@@ -99,9 +103,7 @@ describe('parseBackup', () => {
     const data = {
       ...valid(),
       categories: [],
-      transactions: [
-        { amount: 5000, category: 'Jajan', localDate: '2026-11-23' },
-      ],
+      transactions: [{ amount: 5000, category: 'Jajan', localDate: '2026-11-23' }],
     };
     const backup = parseBackup(JSON.stringify(data));
     expect(backup.transactions[0]).toMatchObject({ kind: 'expense', note: '' });

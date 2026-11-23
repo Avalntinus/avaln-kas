@@ -1,29 +1,21 @@
-import { Redirect, router } from "expo-router";
-import {
-  Pressable,
-  ScrollView,
-  StyleSheet,
-  Text,
-  useWindowDimensions,
-  View,
-} from "react-native";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { Redirect, router } from 'expo-router';
+import { Pressable, ScrollView, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { useHomeData } from "@/features/home/use-home-data";
-import { formatLongDate } from "@/lib/date";
-import { transactionLabel } from "@/lib/labels";
-import { formatRp, formatSignedRp } from "@/lib/money";
-import { meterZone } from "@/logic/rollover";
-import { color, radius, size, space, type } from "@/theme/tokens";
-import { AmountText } from "@/ui/amount-text";
-import { Meter } from "@/ui/meter";
-import { Screen } from "@/ui/screen";
+import { useHomeData } from '@/features/home/use-home-data';
+import { formatLongDate } from '@/lib/date';
+import { transactionLabel } from '@/lib/labels';
+import { formatRp, formatSignedRp } from '@/lib/money';
+import { meterZone } from '@/logic/rollover';
+import { color, radius, size, space, type } from '@/theme/tokens';
+import { AmountText } from '@/ui/amount-text';
+import { Meter } from '@/ui/meter';
+import { Screen } from '@/ui/screen';
 
 export default function HomeScreen() {
   const { width } = useWindowDimensions();
   const insets = useSafeAreaInsets();
-  const { loading, error, home, today, transactions, needsSetup } =
-    useHomeData();
+  const { loading, error, home, today, transactions, needsSetup } = useHomeData();
 
   // Angka 48pt aman di tablet, tetapi di HP 360dp perlu diturunkan agar tidak terpotong.
   const displaySize = width < 380 ? 40 : 48;
@@ -41,7 +33,7 @@ export default function HomeScreen() {
   if (error || !home) {
     return (
       <Screen>
-        <Text style={styles.error}>{error ?? "Gagal memuat data"}</Text>
+        <Text style={styles.error}>{error ?? 'Gagal memuat data'}</Text>
       </Screen>
     );
   }
@@ -52,30 +44,27 @@ export default function HomeScreen() {
   const dayZone = meterZone(dayRatio);
   const sisaTone =
     sisaHariIni < 0
-      ? "danger"
+      ? 'danger'
       : day && day.available > 0 && sisaHariIni / day.available < 0.25
-        ? "warn"
-        : "default";
+        ? 'warn'
+        : 'default';
 
   return (
     <Screen>
-      <ScrollView
-        showsVerticalScrollIndicator={false}
-        contentContainerStyle={styles.scrollContent}
-      >
+      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContent}>
         <View style={styles.topRow}>
           <Text style={styles.date}>{formatLongDate(today)}</Text>
           <View style={styles.links}>
             <Pressable
               accessibilityRole="button"
-              onPress={() => router.push("/history")}
+              onPress={() => router.push('/history')}
               hitSlop={space.sm}
             >
               <Text style={styles.link}>Riwayat</Text>
             </Pressable>
             <Pressable
               accessibilityRole="button"
-              onPress={() => router.push("/settings")}
+              onPress={() => router.push('/settings')}
               hitSlop={space.sm}
             >
               <Text style={styles.link}>Setelan</Text>
@@ -89,16 +78,11 @@ export default function HomeScreen() {
             value={sisaHariIni}
             variant="display"
             tone={sisaTone}
-            style={[
-              styles.heroAmount,
-              { fontSize: displaySize, lineHeight: displaySize * 1.15 },
-            ]}
+            style={[styles.heroAmount, { fontSize: displaySize, lineHeight: displaySize * 1.15 }]}
           />
           <Text style={styles.subline}>
             {`dari ${formatRp(day?.base ?? 0)}`}
-            {day && day.carryIn !== 0
-              ? ` · rollover ${formatSignedRp(day.carryIn)}`
-              : ""}
+            {day && day.carryIn !== 0 ? ` · rollover ${formatSignedRp(day.carryIn)}` : ''}
           </Text>
         </View>
 
@@ -106,24 +90,27 @@ export default function HomeScreen() {
           <Meter ratio={dayRatio} zone={dayZone} />
         </View>
 
-        <View style={styles.weekRow}>
+        <Pressable
+          accessibilityRole="button"
+          accessibilityLabel="Lihat rincian minggu"
+          onPress={() => router.push('/week')}
+          style={({ pressed }) => [styles.weekRow, pressed && styles.pressed]}
+        >
           <Text style={styles.muted}>Sisa minggu ini</Text>
-          <AmountText
-            value={home.remainingWeek}
-            variant="meta"
-            tone={home.remainingWeek < 0 ? "danger" : "muted"}
-          />
-        </View>
+          <View style={styles.weekValue}>
+            <AmountText
+              value={home.remainingWeek}
+              variant="meta"
+              tone={home.remainingWeek < 0 ? 'danger' : 'muted'}
+            />
+            <Text style={styles.chevron}>›</Text>
+          </View>
+        </Pressable>
 
         {home.week.income > 0 ? (
           <View style={styles.weekRow}>
             <Text style={styles.muted}>Pemasukan minggu ini</Text>
-            <AmountText
-              value={home.week.income}
-              variant="meta"
-              tone="accent"
-              signed
-            />
+            <AmountText value={home.week.income} variant="meta" tone="accent" signed />
           </View>
         ) : null}
 
@@ -146,7 +133,7 @@ export default function HomeScreen() {
                 accessibilityRole="button"
                 onPress={() =>
                   router.push({
-                    pathname: "/add",
+                    pathname: '/add',
                     params: { id: String(tx.id) },
                   })
                 }
@@ -157,15 +144,13 @@ export default function HomeScreen() {
                 ]}
               >
                 <Text style={styles.rowNote} numberOfLines={1}>
-                  {tx.kind === "income"
-                    ? `Masuk · ${transactionLabel(tx)}`
-                    : transactionLabel(tx)}
+                  {tx.kind === 'income' ? `Masuk · ${transactionLabel(tx)}` : transactionLabel(tx)}
                 </Text>
                 <AmountText
                   value={tx.amount}
                   variant="body"
-                  tone={tx.kind === "income" ? "accent" : "default"}
-                  signed={tx.kind === "income"}
+                  tone={tx.kind === 'income' ? 'accent' : 'default'}
+                  signed={tx.kind === 'income'}
                 />
               </Pressable>
             ))}
@@ -176,7 +161,7 @@ export default function HomeScreen() {
       <Pressable
         accessibilityRole="button"
         accessibilityLabel="Tambah pengeluaran"
-        onPress={() => router.push("/add")}
+        onPress={() => router.push('/add')}
         style={({ pressed }) => [
           styles.fab,
           { bottom: insets.bottom + space.xl },
@@ -194,9 +179,9 @@ const styles = StyleSheet.create({
     paddingBottom: size.fab + space.xxl,
   },
   topRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
     gap: space.md,
   },
   date: {
@@ -205,7 +190,7 @@ const styles = StyleSheet.create({
     flexShrink: 1,
   },
   links: {
-    flexDirection: "row",
+    flexDirection: 'row',
     gap: space.lg,
   },
   link: {
@@ -232,9 +217,19 @@ const styles = StyleSheet.create({
   },
   weekRow: {
     marginTop: space.lg,
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  weekValue: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: space.xs,
+  },
+  chevron: {
+    ...type.meta,
+    color: color.ink3,
+    marginTop: -2,
   },
   muted: {
     ...type.meta,
@@ -251,9 +246,9 @@ const styles = StyleSheet.create({
   },
   listHeader: {
     marginTop: space.lg,
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
   },
   empty: {
     ...type.meta,
@@ -262,9 +257,9 @@ const styles = StyleSheet.create({
   },
   row: {
     minHeight: size.touch,
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
     gap: space.lg,
   },
   rowBorder: {
@@ -284,15 +279,15 @@ const styles = StyleSheet.create({
     color: color.danger,
   },
   fab: {
-    position: "absolute",
+    position: 'absolute',
     right: space.xl,
     bottom: space.xl,
     width: size.fab,
     height: size.fab,
     borderRadius: radius.full,
     backgroundColor: color.ink,
-    alignItems: "center",
-    justifyContent: "center",
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   fabPressed: {
     opacity: 0.7,
@@ -301,6 +296,6 @@ const styles = StyleSheet.create({
     color: color.bg,
     fontSize: 30,
     lineHeight: 34,
-    fontWeight: "300",
+    fontWeight: '300',
   },
 });

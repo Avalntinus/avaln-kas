@@ -1,8 +1,4 @@
-import {
-  BACKUP_APP,
-  BACKUP_VERSION,
-  type BackupFile,
-} from '../lib/backup';
+import { BACKUP_APP, BACKUP_VERSION, type BackupFile } from '../lib/backup';
 import { addDays, todayISO, type ISODate } from '../lib/date';
 import { splitDaily } from '../logic/rollover';
 import type { SpendMap } from '../logic/rollover';
@@ -303,7 +299,8 @@ export async function updateTransaction(
   }
   if (patch.amount !== undefined) {
     const amount = Math.round(patch.amount);
-    if (!Number.isFinite(amount) || amount <= 0) throw new Error('Nominal harus lebih besar dari 0');
+    if (!Number.isFinite(amount) || amount <= 0)
+      throw new Error('Nominal harus lebih besar dari 0');
     columns.push('amount = ?');
     values.push(amount);
   }
@@ -394,16 +391,15 @@ export async function listTransactionsBetween(from: ISODate, to: ISODate): Promi
 
 export async function listRecentTransactions(limit = 50): Promise<Transaction[]> {
   const db = await getDb();
-  const rows = await db.getAllAsync<TransactionRow>(
-    `${SELECT_TX} ${ORDER_TX} LIMIT ?`,
-    limit,
-  );
+  const rows = await db.getAllAsync<TransactionRow>(`${SELECT_TX} ${ORDER_TX} LIMIT ?`, limit);
   return rows.map(mapTransaction);
 }
 
 export async function countTransactions(): Promise<number> {
   const db = await getDb();
-  const row = await db.getFirstAsync<{ total: number }>('SELECT COUNT(*) AS total FROM transactions');
+  const row = await db.getFirstAsync<{ total: number }>(
+    'SELECT COUNT(*) AS total FROM transactions',
+  );
   return row?.total ?? 0;
 }
 

@@ -3,15 +3,7 @@ import * as FileSystem from 'expo-file-system/legacy';
 import { router } from 'expo-router';
 import * as Sharing from 'expo-sharing';
 import { useCallback, useEffect, useState, type ReactNode } from 'react';
-import {
-  Alert,
-  Pressable,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TextInput,
-  View,
-} from 'react-native';
+import { Alert, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import {
@@ -93,7 +85,10 @@ export default function SettingsScreen() {
       await load();
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
-      Alert.alert('Gagal menambah kategori', message.includes('UNIQUE') ? 'Nama itu sudah ada.' : message);
+      Alert.alert(
+        'Gagal menambah kategori',
+        message.includes('UNIQUE') ? 'Nama itu sudah ada.' : message,
+      );
     } finally {
       setBusy(false);
     }
@@ -238,12 +233,18 @@ export default function SettingsScreen() {
               value={formatRp(settings.weeklyBudget)}
               onPress={() => setEditor('weekly')}
             />
-            <Row label="Jatah harian" value={formatRp(daily.base)} hint="otomatis dari budget mingguan" />
+            <Row
+              label="Jatah harian"
+              value={formatRp(daily.base)}
+              hint="otomatis dari budget mingguan"
+            />
             <Row
               label="Batas bawah"
               value={floorActive ? formatSignedRp(settings.debtFloor ?? 0) : 'Tanpa batas'}
               onPress={() => setEditor('floor')}
-              hint={floorActive ? 'minus tidak bisa lebih dalam dari ini' : 'minus boleh tanpa batas'}
+              hint={
+                floorActive ? 'minus tidak bisa lebih dalam dari ini' : 'minus boleh tanpa batas'
+              }
             />
             {floorActive ? (
               <Pressable
@@ -328,7 +329,10 @@ export default function SettingsScreen() {
                 hitSlop={space.md}
               >
                 <Text
-                  style={[styles.addButton, (newCategory.trim() === '' || busy) && styles.addDisabled]}
+                  style={[
+                    styles.addButton,
+                    (newCategory.trim() === '' || busy) && styles.addDisabled,
+                  ]}
                 >
                   Tambah
                 </Text>
@@ -340,8 +344,8 @@ export default function SettingsScreen() {
             <Row label="Export backup" value="JSON" onPress={() => void handleExport()} />
             <Row label="Import backup" value="JSON" onPress={() => void handleImport()} />
             <Text style={styles.sectionHint}>
-              File JSON berisi transaksi, kategori, dan setelan. Simpan ke Drive supaya aman
-              kalau HP hilang.
+              File JSON berisi transaksi, kategori, dan setelan. Simpan ke Drive supaya aman kalau
+              HP hilang.
             </Text>
             <Pressable
               accessibilityRole="button"
@@ -411,7 +415,11 @@ function Row({
 
   if (!onPress) return content;
   return (
-    <Pressable accessibilityRole="button" onPress={onPress} style={({ pressed }) => pressed && styles.pressed}>
+    <Pressable
+      accessibilityRole="button"
+      onPress={onPress}
+      style={({ pressed }) => pressed && styles.pressed}
+    >
       {content}
     </Pressable>
   );

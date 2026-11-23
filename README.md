@@ -11,9 +11,10 @@ SQLite device, backup lewat file JSON.
 > onboarding, tambah/edit, riwayat, setelan, backup). AI menyusul.
 
 <p align="center">
-  <img src="docs/screenshots/home.png" width="240" alt="Home — sisa hari ini dan meter mingguan" />
-  <img src="docs/screenshots/add.png" width="240" alt="Tambah pengeluaran dengan keypad IDR" />
-  <img src="docs/screenshots/history.png" width="240" alt="Riwayat dikelompokkan per minggu dan hari" />
+  <img src="docs/screenshots/home.png" width="190" alt="Home — sisa hari ini dan meter mingguan" />
+  <img src="docs/screenshots/add.png" width="190" alt="Tambah pengeluaran dengan keypad IDR" />
+  <img src="docs/screenshots/week.png" width="190" alt="Rincian minggu — jatah dan carry tiap hari" />
+  <img src="docs/screenshots/history.png" width="190" alt="Riwayat dikelompokkan per minggu dan hari" />
 </p>
 
 ## Fitur
@@ -21,6 +22,7 @@ SQLite device, backup lewat file JSON.
 - **Rolling budget** harian dan mingguan, mode debt + `debt_floor`
 - **Pengeluaran & pemasukan** — pemasukan menambah pool minggu berjalan
 - **Onboarding** — atur budget mingguan & awal minggu saat pertama pakai
+- **Rincian minggu** — 7 hari: jatah, terpakai, carry, dan rollover ke minggu depan
 - **Riwayat** dikelompokkan per minggu → hari, tap untuk ubah/hapus
 - **Kategori** bisa ditambah/dihapus
 - **Backup** export/import JSON dengan validasi
@@ -101,7 +103,7 @@ tanggal `YYYY-MM-DD`, logika rollover tetap murni, warna hanya dari token.
 - [x] Ikon aplikasi (paper + emerald, monogram A + meter)
 - [x] Screenshot di README
 - [ ] Batch C: bantuan AI (Gemini Flash) — saran kategori & ringkasan, key di SecureStore
-- [ ] Layar ringkasan mingguan (7 bar)
+- [x] Layar rincian minggu (7 hari + carry)
 - [ ] Build APK (JDK 21 + EAS/prebuild)
 
 ## Lisensi

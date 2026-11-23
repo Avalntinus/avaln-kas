@@ -10,7 +10,12 @@ import {
   type Transaction,
 } from '@/db/repo';
 import { addDays, startOfWeek, todayISO, type ISODate } from '@/lib/date';
-import { buildHomeView, type BudgetSettings, type HomeView, type WeekStartDay } from '@/logic/rollover';
+import {
+  buildHomeView,
+  type BudgetSettings,
+  type HomeView,
+  type WeekStartDay,
+} from '@/logic/rollover';
 import { closePastWeeks } from '@/logic/weeks';
 
 export interface HomeData {

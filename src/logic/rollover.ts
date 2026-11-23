@@ -114,8 +114,7 @@ export function computeWeek(input: {
   });
 
   const remaining = pool - spentTotal;
-  const rolloverOut =
-    debtFloor === null ? remaining : Math.max(remaining, Math.round(debtFloor));
+  const rolloverOut = debtFloor === null ? remaining : Math.max(remaining, Math.round(debtFloor));
 
   return {
     weekStart: input.weekStartDate,
@@ -177,6 +176,15 @@ export function buildHomeView(input: {
   };
 }
 
+/**
+ * Seberapa besar jatah hari itu terpakai (0..1) untuk bar rincian minggu.
+ * Hari tanpa jatah (available <= 0) dianggap penuh supaya bar tidak menyesatkan.
+ */
+export function dayUsage(day: Pick<DayPoint, 'spent' | 'available'>): number {
+  if (!Number.isFinite(day.available) || day.available <= 0) return day.spent > 0 ? 1 : 0;
+  return Math.min(1, Math.max(0, day.spent / day.available));
+}
+
 export function meterZone(usedRatio: number): MeterZone {
   if (!Number.isFinite(usedRatio)) return 'danger';
   if (usedRatio >= 0.9) return 'danger';
@@ -185,9 +193,7 @@ export function meterZone(usedRatio: number): MeterZone {
 }
 
 /** Kumpulkan transaksi jadi peta tanggal -> total. */
-export function spentByDateFrom(
-  rows: readonly { localDate: ISODate; amount: number }[],
-): SpendMap {
+export function spentByDateFrom(rows: readonly { localDate: ISODate; amount: number }[]): SpendMap {
   const map: SpendMap = {};
   for (const row of rows) {
     map[row.localDate] = (map[row.localDate] ?? 0) + Math.round(row.amount);

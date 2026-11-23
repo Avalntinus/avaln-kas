@@ -85,7 +85,12 @@ export function parseBackup(input: string): BackupFile {
       : readAmount(settings.dailyTarget, 'Target harian');
 
   const weekStart = settings.weekStart;
-  if (typeof weekStart !== 'number' || !Number.isInteger(weekStart) || weekStart < 0 || weekStart > 6) {
+  if (
+    typeof weekStart !== 'number' ||
+    !Number.isInteger(weekStart) ||
+    weekStart < 0 ||
+    weekStart > 6
+  ) {
     fail('Hari mulai minggu harus 0–6.');
   }
 
@@ -138,8 +143,7 @@ export function parseBackup(input: string): BackupFile {
   return {
     app: BACKUP_APP,
     version: BACKUP_VERSION,
-    exportedAt:
-      typeof raw.exportedAt === 'string' ? raw.exportedAt : new Date().toISOString(),
+    exportedAt: typeof raw.exportedAt === 'string' ? raw.exportedAt : new Date().toISOString(),
     settings: { dailyTarget, weeklyBudget, weekStart, debtFloor },
     categories,
     transactions,

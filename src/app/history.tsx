@@ -3,8 +3,20 @@ import { useCallback, useEffect, useState } from 'react';
 import { Alert, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-import { deleteTransaction, getSettings, listTransactionsBetween, type Transaction } from '@/db/repo';
-import { addDays, formatDayMonth, formatLongDate, startOfWeek, todayISO, type ISODate } from '@/lib/date';
+import {
+  deleteTransaction,
+  getSettings,
+  listTransactionsBetween,
+  type Transaction,
+} from '@/db/repo';
+import {
+  addDays,
+  formatDayMonth,
+  formatLongDate,
+  startOfWeek,
+  todayISO,
+  type ISODate,
+} from '@/lib/date';
 import { transactionLabel } from '@/lib/labels';
 import { formatRp } from '@/lib/money';
 import { color, size, space, type } from '@/theme/tokens';

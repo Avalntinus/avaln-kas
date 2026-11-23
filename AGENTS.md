@@ -113,6 +113,7 @@ src/app/                 route (expo-router, folder src/app, nama kebab-case)
                          (redirect ke /welcome kalau settings.onboarded masih false)
   add.tsx                Tambah/ubah transaksi (toggle Pengeluaran/Pemasukan + MoneyPad)
   history.tsx            Riwayat: grup minggu → hari, tap baris = ubah/hapus
+  week.tsx               Rincian minggu: 7 hari, jatah vs terpakai, carry, rollover
   settings.tsx           Budget, batas bawah, mulai minggu, kategori, backup, reset
 
 src/logic/
@@ -251,6 +252,10 @@ space 4/8/12/16/24/32/48 · radius 12/999 · meter 2px · touch 44
   Geser bubble-nya menjauh sebelum uji tap, atau pakai build APK (tanpa bubble).
 - Pertama kali buka project di Expo Go: muncul dev menu → tap **Continue**, lalu
   **BACK** untuk masuk ke app.
+- Dialog **`"Emulator" Is Not Responding`** adalah GNOME (host), bukan ANR Android:
+  `org.gnome.mutter check-alive-timeout` di mesin ini sempat 5 detik. Sudah di-set 0
+  (`gsettings set org.gnome.mutter check-alive-timeout 0`). Kalau muncul lagi,
+  pilih **Wait**, jangan Force Quit. Host 15 GB mudah penuh (emulator ±2,6 GB).
 - Emulator headless + `-gpu off` lambat merender; beri jeda 1–2 detik setelah tap.
 
 ## 11. Status & backlog

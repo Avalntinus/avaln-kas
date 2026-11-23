@@ -3,6 +3,7 @@ import { describe, expect, it } from 'vitest';
 import {
   buildHomeView,
   computeWeek,
+  dayUsage,
   meterZone,
   spentByDateFrom,
   splitDaily,
@@ -207,6 +208,20 @@ describe('rentang tanggal', () => {
 
   it('addDays lintas tahun', () => {
     expect(addDays('2026-12-31', 1)).toBe('2027-01-01');
+  });
+});
+
+describe('dayUsage', () => {
+  it('menghitung porsi jatah yang terpakai', () => {
+    expect(dayUsage({ spent: 0, available: 30000 })).toBe(0);
+    expect(dayUsage({ spent: 15000, available: 30000 })).toBe(0.5);
+    expect(dayUsage({ spent: 45000, available: 30000 })).toBe(1);
+  });
+
+  it('hari tanpa jatah tidak menghasilkan rasio aneh', () => {
+    expect(dayUsage({ spent: 0, available: 0 })).toBe(0);
+    expect(dayUsage({ spent: 5000, available: -10000 })).toBe(1);
+    expect(dayUsage({ spent: 5000, available: Number.NaN })).toBe(1);
   });
 });
 
