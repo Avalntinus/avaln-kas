@@ -11,15 +11,18 @@ SQLite device, backup lewat file JSON.
 > onboarding, tambah/edit, riwayat, setelan, backup). AI menyusul.
 
 <p align="center">
-  <img src="docs/screenshots/home.png" width="190" alt="Home — sisa hari ini dan meter mingguan" />
-  <img src="docs/screenshots/add.png" width="190" alt="Tambah pengeluaran dengan keypad IDR" />
-  <img src="docs/screenshots/week.png" width="190" alt="Rincian minggu — jatah dan carry tiap hari" />
-  <img src="docs/screenshots/history.png" width="190" alt="Riwayat dikelompokkan per minggu dan hari" />
+  <img src="docs/screenshots/home.png" width="170" alt="Home — sisa hari ini dan meter mingguan" />
+  <img src="docs/screenshots/quick.png" width="170" alt="Tambah cepat — satu kalimat jadi transaksi" />
+  <img src="docs/screenshots/add.png" width="170" alt="Tambah pengeluaran dengan keypad IDR" />
+  <img src="docs/screenshots/week.png" width="170" alt="Rincian minggu — jatah dan carry tiap hari" />
+  <img src="docs/screenshots/history.png" width="170" alt="Riwayat dikelompokkan per minggu dan hari" />
 </p>
 
 ## Fitur
 
 - **Rolling budget** harian dan mingguan, mode debt + `debt_floor`
+- **Tambah cepat** — tulis “kopi 18rb” atau “kemarin parkir 5rb”; parser lokal jalan
+  offline, AI Gemini opsional untuk kalimat bebas
 - **Pengeluaran & pemasukan** — pemasukan menambah pool minggu berjalan
 - **Onboarding** — atur budget mingguan & awal minggu saat pertama pakai
 - **Rincian minggu** — 7 hari: jatah, terpakai, carry, dan rollover ke minggu depan
@@ -45,7 +48,7 @@ Contoh: pool 210.000 → jatah 30.000/hari. Senin belanja 22.000 → Selasa puny
 ## Stack
 
 - Expo SDK 58 · React Native 0.88 · TypeScript (strict)
-- expo-router · expo-sqlite · expo-secure-store (menyusul untuk API key AI)
+- expo-router · expo-sqlite · expo-secure-store (API key AI) · Gemini Flash (opsional)
 - Vitest untuk logika murni
 
 ## Menjalankan
@@ -96,14 +99,18 @@ tanggal `YYYY-MM-DD`, logika rollover tetap murni, warna hanya dari token.
 - Tidak ada request jaringan untuk fungsi inti.
 - Database lokal `budgeting.db` di sandbox app.
 - Backup JSON berisi transaksi, kategori (nama), dan setelan — tidak ada kredensial.
-- API key AI (nanti) disimpan di `expo-secure-store`, tidak pernah ikut backup.
+- API key Gemini disimpan di `expo-secure-store` (Android Keystore), tidak ikut backup.
+- AI hanya dipakai kalau parser lokal gagal. Yang dikirim hanya **kalimat yang kamu
+  ketik**, nama kategori, dan tanggal hari ini — riwayat transaksi tidak pernah dikirim.
 
 ## Roadmap
 
 - [x] Ikon aplikasi (paper + emerald, monogram A + meter)
 - [x] Screenshot di README
-- [ ] Batch C: bantuan AI (Gemini Flash) — saran kategori & ringkasan, key di SecureStore
+- [x] Tambah cepat (parser lokal, offline)
+- [x] Integrasi Gemini Flash (opsional, key di SecureStore, output divalidasi)
 - [x] Layar rincian minggu (7 hari + carry)
+- [ ] Aktifkan AI dengan API key pribadi
 - [ ] Build APK (JDK 21 + EAS/prebuild)
 
 ## Lisensi

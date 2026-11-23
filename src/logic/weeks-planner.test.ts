@@ -44,6 +44,26 @@ describe('weeksToClose', () => {
     ]);
   });
 
+  it('tidak menutup minggu sebelum app mulai dipakai', () => {
+    expect(
+      weeksToClose({
+        earliest: '2026-11-02',
+        today: '2026-11-23',
+        weekStart: 1,
+        notBefore: '2026-11-23',
+      }),
+    ).toEqual([]);
+
+    expect(
+      weeksToClose({
+        earliest: '2026-11-02',
+        today: '2026-11-23',
+        weekStart: 1,
+        notBefore: '2026-11-09',
+      }),
+    ).toEqual(['2026-11-16', '2026-11-09']);
+  });
+
   it('dibatasi maxWeeks supaya tidak berputar selamanya', () => {
     const weeks = weeksToClose({
       earliest: '2020-01-01',

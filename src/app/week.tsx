@@ -35,6 +35,7 @@ export default function WeekScreen() {
         weeklyBudget: saved.weeklyBudget,
         weekStart: saved.weekStart as WeekStartDay,
         debtFloor: saved.debtFloor,
+        startedOn: saved.startedOn,
       };
 
       await closePastWeeks(settings, current);

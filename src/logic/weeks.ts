@@ -5,7 +5,7 @@ import {
   getWeekRow,
   upsertWeekRow,
 } from '../db/repo';
-import { addDays, type ISODate } from '../lib/date';
+import { addDays, startOfWeek, type ISODate } from '../lib/date';
 import { computeWeek, type BudgetSettings } from './rollover';
 import { weeksToClose } from './weeks-planner';
 
@@ -23,6 +23,7 @@ export async function closePastWeeks(settings: BudgetSettings, today: ISODate): 
     earliest,
     today,
     weekStart: settings.weekStart,
+    notBefore: settings.startedOn ? startOfWeek(settings.startedOn, settings.weekStart) : undefined,
   });
 
   for (const weekStart of weeks) {

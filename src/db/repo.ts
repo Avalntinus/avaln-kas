@@ -13,6 +13,8 @@ export interface Settings {
   currency: string;
   /** false = tampilkan layar atur budget pertama kali */
   onboarded: boolean;
+  /** Tanggal lokal saat app mulai dipakai; minggu sebelumnya diabaikan. */
+  startedOn: ISODate;
 }
 
 export interface Category {
@@ -64,6 +66,7 @@ interface SettingsRow {
   debt_floor: number | null;
   currency: string;
   onboarded: number;
+  started_on: string | null;
 }
 
 interface CategoryRow {
@@ -109,6 +112,7 @@ const SETTINGS_COLUMNS = {
   debtFloor: 'debt_floor',
   currency: 'currency',
   onboarded: 'onboarded',
+  startedOn: 'started_on',
 } as const;
 
 type SettingsKey = keyof typeof SETTINGS_COLUMNS;
@@ -122,6 +126,7 @@ function mapSettings(row: SettingsRow): Settings {
     debtFloor: row.debt_floor,
     currency: row.currency,
     onboarded: row.onboarded === 1,
+    startedOn: row.started_on ?? todayISO(),
   };
 }
 
@@ -157,7 +162,8 @@ function mapWeek(row: WeekDbRow): WeekRow {
 export async function getSettings(): Promise<Settings> {
   const db = await getDb();
   const row = await db.getFirstAsync<SettingsRow>(
-    'SELECT id, daily_target, weekly_budget, week_start, debt_floor, currency, onboarded FROM settings WHERE id = 1',
+    `SELECT id, daily_target, weekly_budget, week_start, debt_floor, currency, onboarded, started_on
+       FROM settings WHERE id = 1`,
   );
   if (!row) throw new Error('Settings belum terinisialisasi');
   return mapSettings(row);
@@ -196,6 +202,7 @@ export async function completeOnboarding(input: {
     weekStart: input.weekStart,
     debtFloor: weeklyBudget > 0 ? -weeklyBudget : null,
     onboarded: true,
+    startedOn: todayISO(),
   });
 }
 

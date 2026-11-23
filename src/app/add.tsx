@@ -11,17 +11,32 @@ import {
   type Category,
   type TransactionKind,
 } from '@/db/repo';
+import { addDays, formatDayMonth, todayISO, type ISODate } from '@/lib/date';
 import { digitsToAmount, formatRp, normalizeNote } from '@/lib/money';
 import { color, radius, size, space, type } from '@/theme/tokens';
 import { MoneyPad } from '@/ui/money-pad';
 
 const MAX_DIGITS = 12;
 
+/** Dipisah di level modul supaya tidak dianggap pemanggilan impure saat render. */
+function nowMs(): number {
+  return Date.now();
+}
+
 export default function AddScreen() {
-  const params = useLocalSearchParams<{ id?: string }>();
+  const params = useLocalSearchParams<{
+    id?: string;
+    amount?: string;
+    kind?: string;
+    note?: string;
+    date?: string;
+    categoryId?: string;
+  }>();
   const editingId = params.id ? Number(params.id) : null;
 
   const [kind, setKind] = useState<TransactionKind>('expense');
+  const [localDate, setLocalDate] = useState<ISODate>(todayISO());
+  const [occurredAt, setOccurredAt] = useState<number>(nowMs);
   const [digits, setDigits] = useState('');
   const [note, setNote] = useState('');
   const [categories, setCategories] = useState<Category[]>([]);
@@ -43,6 +58,22 @@ export default function AddScreen() {
         setDigits(String(tx.amount));
         setNote(tx.note);
         setCategoryId(tx.categoryId);
+        setLocalDate(tx.localDate);
+        setOccurredAt(tx.occurredAt);
+      } else if (params.amount) {
+        // Prefill dari layar Tambah cepat.
+        const amount = Number(params.amount);
+        if (Number.isFinite(amount) && amount > 0) setDigits(String(Math.round(amount)));
+        if (params.kind === 'income') setKind('income');
+        if (params.note) setNote(params.note);
+        if (params.date) {
+          setLocalDate(params.date);
+          setOccurredAt(
+            params.date === todayISO() ? Date.now() : new Date(`${params.date}T12:00:00`).getTime(),
+          );
+        }
+        if (params.categoryId) setCategoryId(Number(params.categoryId));
+        else if (cats.length > 0) setCategoryId(cats[0].id);
       } else if (cats.length > 0) {
         setCategoryId(cats[0].id);
       }
@@ -51,11 +82,26 @@ export default function AddScreen() {
     return () => {
       cancelled = true;
     };
-  }, [editingId]);
+  }, [editingId, params.amount, params.categoryId, params.date, params.kind, params.note]);
 
   const amount = digitsToAmount(digits);
   const canSave = amount > 0 && !saving;
   const isIncome = kind === 'income';
+
+  const today = todayISO();
+  const yesterday = addDays(today, -1);
+  const dateOptions = [
+    { value: today, label: 'Hari ini' },
+    { value: yesterday, label: 'Kemarin' },
+  ];
+  if (!dateOptions.some((option) => option.value === localDate)) {
+    dateOptions.push({ value: localDate, label: formatDayMonth(localDate) });
+  }
+
+  function pickDate(date: ISODate) {
+    setLocalDate(date);
+    setOccurredAt(date === todayISO() ? nowMs() : new Date(`${date}T12:00:00`).getTime());
+  }
 
   function handleDigit(key: string) {
     if (key === '⌫') {
@@ -79,6 +125,8 @@ export default function AddScreen() {
         amount,
         categoryId: isIncome ? null : categoryId,
         note: cleanNote,
+        localDate,
+        occurredAt,
       };
 
       if (editingId) {
@@ -129,6 +177,28 @@ export default function AddScreen() {
               </Pressable>
             );
           })}
+        </View>
+
+        <View style={styles.dateRow}>
+          <Text style={styles.label}>Tanggal</Text>
+          <View style={styles.dateChips}>
+            {dateOptions.map((option) => {
+              const selected = option.value === localDate;
+              return (
+                <Pressable
+                  key={option.value}
+                  accessibilityRole="button"
+                  accessibilityState={{ selected }}
+                  onPress={() => pickDate(option.value)}
+                  style={[styles.dateChip, selected && styles.dateChipSelected]}
+                >
+                  <Text style={[styles.dateChipText, selected && styles.dateChipTextSelected]}>
+                    {option.label}
+                  </Text>
+                </Pressable>
+              );
+            })}
+          </View>
         </View>
 
         <View style={styles.form}>
@@ -246,6 +316,36 @@ const styles = StyleSheet.create({
     color: color.ink2,
   },
   segmentTextSelected: {
+    color: color.ink,
+    fontWeight: '600',
+  },
+  dateRow: {
+    marginTop: space.md,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  dateChips: {
+    flexDirection: 'row',
+    gap: space.sm,
+  },
+  dateChip: {
+    paddingHorizontal: space.md,
+    paddingVertical: 6,
+    borderRadius: radius.full,
+    borderWidth: size.hairline,
+    borderColor: color.hairline,
+  },
+  dateChipSelected: {
+    backgroundColor: color.sunken,
+    borderColor: color.ink3,
+  },
+  dateChipText: {
+    ...type.meta,
+    fontSize: 13,
+    color: color.ink2,
+  },
+  dateChipTextSelected: {
     color: color.ink,
     fontWeight: '600',
   },

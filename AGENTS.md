@@ -41,7 +41,11 @@ Bahasa UI: **Indonesia**. Nada copy: pendek, netral, tanpa emoji.
 8. **Jangan menambah dependensi besar tanpa alasan.** Tidak ada UI kit, tidak ada
    state manager, tidak ada ORM. `npx shadcn add` dilarang (itu untuk web).
 9. **Jangan mengubah `MIGRATION_1`.** Migrasi SQLite bersifat append-only; buat
-   `MIGRATION_3` untuk perubahan berikutnya.
+   migrasi baru untuk perubahan berikutnya.
+10. **AI tidak boleh menyimpan transaksi sendiri.** Output AI divalidasi dulu
+    (`src/ai/parse.ts`), lalu ditampilkan sebagai draft; user menekan Simpan.
+    Yang dikirim hanya kalimat yang diketik + nama kategori + tanggal hari ini.
+    API key wajib di `expo-secure-store`; tanpa key app tetap jalan (parser lokal).
 
 ## 3. Urutan membaca untuk agent baru (wajib)
 
@@ -112,11 +116,18 @@ src/app/                 route (expo-router, folder src/app, nama kebab-case)
   index.tsx              Home: sisa hari ini, meter, sisa minggu, daftar hari ini, FAB
                          (redirect ke /welcome kalau settings.onboarded masih false)
   add.tsx                Tambah/ubah transaksi (toggle Pengeluaran/Pemasukan + MoneyPad)
+  quick.tsx              Tambah cepat: satu kalimat → draft transaksi (lokal/AI)
   history.tsx            Riwayat: grup minggu → hari, tap baris = ubah/hapus
   week.tsx               Rincian minggu: 7 hari, jatah vs terpakai, carry, rollover
   settings.tsx           Budget, batas bawah, mulai minggu, kategori, backup, reset
 
+src/ai/
+  gemini.ts              Klien Gemini Flash (fetch, timeout 8 dtk, schema JSON)
+  key.ts                 API key di expo-secure-store
+  parse.ts               Validator output AI (murni, ada test)
+
 src/logic/
+  quick-add.ts           Parser lokal "kopi 18rb" (murni, ada test)
   rollover.ts            JANTUNG: split pool → jatah harian → carry chain
   weeks.ts               Pembekuan minggu lewat ke tabel `weeks` (pakai DB)
   weeks-planner.ts       Daftar minggu yang perlu dibekukan (murni, ada test)
@@ -197,6 +208,10 @@ Aturan:
 - Migrasi: `MIGRATIONS[i]` dijalankan sekali sesuai `PRAGMA user_version`.
   Tambah migrasi baru = naikkan `DATABASE_VERSION` + push SQL ke array.
 - Seed hanya untuk instalasi baru (4 kategori + settings 30.000/210.000).
+- `settings.started_on` (migrasi v4) = tanggal app mulai dipakai. Minggu sebelum
+  tanggal ini **tidak** diberi budget/rollover, supaya transaksi yang di-backdate
+  ke minggu lalu tidak tiba-tiba memberi surplus. Migrasi v4 juga menghapus cache
+  `weeks` lama.
 - `completeOnboarding()` mengisi weekly budget, `dailyTarget` (base), `weekStart`,
   `debtFloor = −weekly`, lalu `onboarded = true`.
 - Migrasi v3 menandai `onboarded = 1` untuk database lama yang sudah punya transaksi;
@@ -257,23 +272,24 @@ space 4/8/12/16/24/32/48 · radius 12/999 · meter 2px · touch 44
   (`gsettings set org.gnome.mutter check-alive-timeout 0`). Kalau muncul lagi,
   pilih **Wait**, jangan Force Quit. Host 15 GB mudah penuh (emulator ±2,6 GB).
 - Emulator headless + `-gpu off` lambat merender; beri jeda 1–2 detik setelah tap.
+- Setelah menambah **route baru** atau mengubah file yang di-cache, Fast Refresh
+  kadang tetap menyajikan bundle lama. Reload penuh: force-stop Expo Go lalu buka
+  ulang deep link (atau dev menu → Reload).
 
 ## 11. Status & backlog
 
 Selesai: nama **Avaln Kas** + identitas teknis, scaffold, tokens, money/date, rollover,
-DB v3 (`kind`, `onboarded`), layar sambutan, Home, Tambah, Riwayat, Settings,
+DB v4 (`kind`, `onboarded`, `started_on`), layar sambutan, Home, Tambah, Riwayat, Settings,
 kategori CRUD, backup export/import JSON, tutup minggu otomatis.
-**47 test hijau** (rollover, perencana minggu, validator backup).
-Sudah diuji native di emulator: onboarding → pengeluaran → pemasukan → riwayat.
+**68 test hijau** (rollover, perencana minggu, parser tambah cepat, validator backup & AI).
+Sudah diuji native di emulator: onboarding → pengeluaran → pemasukan → riwayat →
+rincian minggu → tambah cepat (lokal) → AI menolak key palsu dengan pesan benar.
 
 Berikutnya, berurutan:
 
-1. **Batch C — AI (belum).** Gemini Flash default, provider bisa ditukar
-   (Groq/OpenRouter). API key di `expo-secure-store`, diisi dari Settings.
-   Kirim **hanya** teks catatan + nominal + nama kategori. Jangan pernah kirim
-   seluruh riwayat. Butuh API key dari pemilik (`aistudio.google.com/apikey`).
-2. Layar ringkasan minggu (7 bar) — opsional, tunggu keputusan pemilik.
-3. APK: JDK 21 + `expo prebuild` + EAS (atau build lokal).
+1. **Aktifkan AI:** pemilik memasukkan API key Gemini di Setelan (belum diisi).
+   Kode, validasi, dan fallback sudah ada; tanpa key tetap lokal.
+2. APK: JDK 21 + `expo prebuild` + EAS (atau build lokal).
 
 Jangan mulai fitur baru di luar daftar ini tanpa bertanya ke pemilik.
 

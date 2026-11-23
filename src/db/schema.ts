@@ -1,7 +1,7 @@
 import type { SQLiteDatabase } from 'expo-sqlite';
 
 export const DATABASE_NAME = 'budgeting.db';
-export const DATABASE_VERSION = 3;
+export const DATABASE_VERSION = 4;
 
 const MIGRATION_1 = `
 PRAGMA journal_mode = WAL;
@@ -75,7 +75,18 @@ UPDATE settings
  WHERE id = 1;
 `;
 
-export const MIGRATIONS: readonly string[] = [MIGRATION_1, MIGRATION_2, MIGRATION_3];
+const MIGRATION_4 = `
+ALTER TABLE settings ADD COLUMN started_on TEXT;
+
+-- Database lama: mulai dihitung dari hari ini supaya minggu sebelum app dipakai
+-- tidak tiba-tiba memberi budget penuh.
+UPDATE settings SET started_on = date('now', 'localtime') WHERE started_on IS NULL;
+
+-- Cache minggu bisa berisi rollover dari masa sebelum app dipakai.
+DELETE FROM weeks;
+`;
+
+export const MIGRATIONS: readonly string[] = [MIGRATION_1, MIGRATION_2, MIGRATION_3, MIGRATION_4];
 
 export async function migrate(db: SQLiteDatabase): Promise<void> {
   const row = await db.getFirstAsync<{ user_version: number }>('PRAGMA user_version');

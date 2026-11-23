@@ -23,6 +23,8 @@ export interface BudgetSettings {
   weekStart: WeekStartDay;
   /** Batas bawah rollover. null = tanpa batas. Contoh: -210000 */
   debtFloor: number | null;
+  /** Tanggal lokal app mulai dipakai; minggu sebelumnya tidak dihitung. */
+  startedOn?: ISODate;
 }
 
 export type SpendMap = Record<ISODate, number>;

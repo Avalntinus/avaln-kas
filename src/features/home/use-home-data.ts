@@ -59,6 +59,7 @@ export function useHomeData(): HomeData {
             weeklyBudget: settings.weeklyBudget,
             weekStart: settings.weekStart as WeekStartDay,
             debtFloor: settings.debtFloor,
+            startedOn: settings.startedOn,
           };
 
           // Bekukan minggu lalu dulu supaya rolloverIn minggu ini tidak 0.

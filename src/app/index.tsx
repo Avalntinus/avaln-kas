@@ -114,6 +114,16 @@ export default function HomeScreen() {
           </View>
         ) : null}
 
+        <Pressable
+          accessibilityRole="button"
+          accessibilityLabel="Tambah cepat"
+          onPress={() => router.push('/quick')}
+          style={({ pressed }) => [styles.quick, pressed && styles.pressed]}
+        >
+          <Text style={styles.quickText}>Tambah cepat · “kopi 18rb”</Text>
+          <Text style={styles.chevron}>›</Text>
+        </Pressable>
+
         <View style={styles.divider} />
 
         <View style={styles.listHeader}>
@@ -230,6 +240,21 @@ const styles = StyleSheet.create({
     ...type.meta,
     color: color.ink3,
     marginTop: -2,
+  },
+  quick: {
+    marginTop: space.lg,
+    minHeight: size.touch,
+    borderRadius: radius.full,
+    backgroundColor: color.sunken,
+    paddingHorizontal: space.lg,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  quickText: {
+    ...type.meta,
+    color: color.ink2,
+    flexShrink: 1,
   },
   muted: {
     ...type.meta,

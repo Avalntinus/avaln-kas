@@ -1,9 +1,11 @@
+import { AiError, GEMINI_MODEL, testGeminiKey } from '@/ai/gemini';
+import { clearAiKey, getAiKey, setAiKey } from '@/ai/key';
 import * as DocumentPicker from 'expo-document-picker';
 import * as FileSystem from 'expo-file-system/legacy';
 import { router } from 'expo-router';
 import * as Sharing from 'expo-sharing';
 import { useCallback, useEffect, useState, type ReactNode } from 'react';
-import { Alert, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
+import { Alert, Linking, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import {
@@ -48,6 +50,10 @@ export default function SettingsScreen() {
   const [editor, setEditor] = useState<EditorKey | null>(null);
   const [newCategory, setNewCategory] = useState('');
   const [busy, setBusy] = useState(false);
+  const [aiKey, setAiKeyState] = useState<string | null>(null);
+  const [editingKey, setEditingKey] = useState(false);
+  const [keyDraft, setKeyDraft] = useState('');
+  const [aiMessage, setAiMessage] = useState<string | null>(null);
 
   const load = useCallback(async () => {
     const [nextSettings, nextCategories] = await Promise.all([getSettings(), listCategories()]);
@@ -59,10 +65,15 @@ export default function SettingsScreen() {
     let cancelled = false;
 
     (async () => {
-      const [nextSettings, nextCategories] = await Promise.all([getSettings(), listCategories()]);
+      const [nextSettings, nextCategories, storedKey] = await Promise.all([
+        getSettings(),
+        listCategories(),
+        getAiKey(),
+      ]);
       if (cancelled) return;
       setSettings(nextSettings);
       setCategories(nextCategories);
+      setAiKeyState(storedKey);
     })();
 
     return () => {
@@ -115,6 +126,49 @@ export default function SettingsScreen() {
         ],
       );
     })();
+  }
+
+  async function handleSaveKey() {
+    const value = keyDraft.trim();
+    if (value === '') return;
+    try {
+      await setAiKey(value);
+      setAiKeyState(value);
+      setEditingKey(false);
+      setKeyDraft('');
+      setAiMessage('API key tersimpan di perangkat.');
+    } catch (error) {
+      Alert.alert('Gagal menyimpan key', messageOf(error));
+    }
+  }
+
+  async function handleTestKey() {
+    if (!aiKey || busy) return;
+    setBusy(true);
+    setAiMessage(null);
+    try {
+      await testGeminiKey(aiKey);
+      setAiMessage('Koneksi ke Gemini berhasil.');
+    } catch (error) {
+      setAiMessage(error instanceof AiError ? error.message : messageOf(error));
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  function confirmRemoveKey() {
+    Alert.alert('Hapus API key?', 'Tambah cepat tetap bisa dipakai lewat parser lokal.', [
+      { text: 'Batal', style: 'cancel' },
+      {
+        text: 'Hapus',
+        style: 'destructive',
+        onPress: async () => {
+          await clearAiKey();
+          setAiKeyState(null);
+          setAiMessage(null);
+        },
+      },
+    ]);
   }
 
   async function handleExport() {
@@ -338,6 +392,84 @@ export default function SettingsScreen() {
                 </Text>
               </Pressable>
             </View>
+          </Section>
+
+          <Section title="AI (opsional)">
+            {aiKey ? (
+              <>
+                <Row
+                  label="Status"
+                  value="Aktif"
+                  hint={`Gemini · ${GEMINI_MODEL} · key di SecureStore`}
+                />
+                <Row
+                  label="Tes koneksi"
+                  value={busy ? 'Menguji…' : 'Jalankan'}
+                  onPress={() => void handleTestKey()}
+                />
+                <Pressable
+                  accessibilityRole="button"
+                  onPress={confirmRemoveKey}
+                  style={styles.subAction}
+                >
+                  <Text style={styles.subActionText}>Hapus API key</Text>
+                </Pressable>
+              </>
+            ) : editingKey ? (
+              <>
+                <TextInput
+                  value={keyDraft}
+                  onChangeText={setKeyDraft}
+                  placeholder="Tempel API key Gemini"
+                  placeholderTextColor={color.ink3}
+                  style={styles.input}
+                  secureTextEntry
+                  autoCapitalize="none"
+                  autoCorrect={false}
+                  maxLength={200}
+                />
+                <View style={styles.keyActions}>
+                  <Pressable
+                    accessibilityRole="button"
+                    onPress={() => {
+                      setEditingKey(false);
+                      setKeyDraft('');
+                    }}
+                    hitSlop={space.sm}
+                  >
+                    <Text style={styles.subActionText}>Batal</Text>
+                  </Pressable>
+                  <Pressable
+                    accessibilityRole="button"
+                    onPress={() => void handleSaveKey()}
+                    disabled={keyDraft.trim() === ''}
+                    hitSlop={space.sm}
+                  >
+                    <Text style={[styles.addButton, keyDraft.trim() === '' && styles.addDisabled]}>
+                      Simpan
+                    </Text>
+                  </Pressable>
+                </View>
+              </>
+            ) : (
+              <Row
+                label="API key Gemini"
+                value="Belum diatur"
+                onPress={() => setEditingKey(true)}
+              />
+            )}
+
+            {aiMessage ? <Text style={styles.sectionHint}>{aiMessage}</Text> : null}
+            <Text style={styles.sectionHint}>
+              Tanpa key, Tambah cepat tetap jalan dengan parser lokal (mis. “kopi 18rb”).
+            </Text>
+            <Pressable
+              accessibilityRole="link"
+              onPress={() => void Linking.openURL('https://aistudio.google.com/apikey')}
+              hitSlop={space.sm}
+            >
+              <Text style={styles.link}>Ambil API key di aistudio.google.com/apikey</Text>
+            </Pressable>
           </Section>
 
           <Section title="Data">
@@ -575,6 +707,17 @@ const styles = StyleSheet.create({
   subActionText: {
     ...type.meta,
     color: color.ink2,
+  },
+  keyActions: {
+    flexDirection: 'row',
+    justifyContent: 'flex-end',
+    gap: space.lg,
+    marginTop: space.md,
+  },
+  link: {
+    ...type.meta,
+    color: color.accent,
+    marginTop: space.sm,
   },
   dangerRow: {
     minHeight: size.touch,
