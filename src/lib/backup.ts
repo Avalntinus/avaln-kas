@@ -22,6 +22,8 @@ export interface BackupSettings {
   themeMode: ThemeMode;
   savingsEnabled: boolean;
   lastSweepPeriod: string | null;
+  savingsOffset: number;
+  savingsTarget: number;
 }
 
 export interface BackupTransaction {
@@ -108,6 +110,12 @@ export function parseBackup(input: string): BackupFile {
   const lastSweepPeriod =
     typeof lastRaw === 'string' && /^\d{4}-\d{2}$/.test(lastRaw) ? lastRaw : null;
 
+  const readInt = (value: unknown, fallback = 0): number =>
+    typeof value === 'number' && Number.isFinite(value) ? Math.round(value) : fallback;
+
+  const savingsOffset = readInt(settings.savingsOffset, 0);
+  const savingsTarget = Math.max(0, readInt(settings.savingsTarget, 0));
+
   let debtFloor: number | null = null;
   if (settings.debtFloor !== null && settings.debtFloor !== undefined) {
     if (typeof settings.debtFloor !== 'number' || !Number.isFinite(settings.debtFloor)) {
@@ -174,6 +182,8 @@ export function parseBackup(input: string): BackupFile {
       themeMode,
       savingsEnabled,
       lastSweepPeriod,
+      savingsOffset,
+      savingsTarget,
     },
     categories,
     transactions,

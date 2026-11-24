@@ -21,6 +21,9 @@ export interface SavingsData {
   /** Sisa minggu berjalan, batas maksimal untuk "Sisihkan". */
   weekRemaining: number;
   sweepEnabled: boolean;
+  savingsTarget: number;
+  /** Koreksi saldo (tidak memengaruhi jatah mingguan). */
+  savingsOffset: number;
   moves: Transaction[];
 }
 
@@ -29,6 +32,8 @@ const EMPTY: SavingsData = {
   balance: 0,
   weekRemaining: 0,
   sweepEnabled: true,
+  savingsTarget: 0,
+  savingsOffset: 0,
   moves: [],
 };
 
@@ -78,6 +83,8 @@ export function useSavingsData(): SavingsData & { refresh: () => void } {
         balance,
         weekRemaining: week.remaining,
         sweepEnabled: settings.savingsEnabled,
+        savingsTarget: settings.savingsTarget,
+        savingsOffset: settings.savingsOffset,
         moves,
       });
     }

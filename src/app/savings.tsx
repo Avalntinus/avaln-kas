@@ -2,21 +2,31 @@ import { router } from 'expo-router';
 import { useState } from 'react';
 import { Alert, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 
-import { addTransaction } from '@/db/repo';
+import { addTransaction, updateSettings } from '@/db/repo';
 import { formatShortDate, todayISO } from '@/lib/date';
 import { formatRp } from '@/lib/money';
 import { useSavingsData } from '@/features/savings/use-savings-data';
 import { makeThemedStyles } from '@/theme/theme';
 import { radius, size, space, type, type Palette } from '@/theme/tokens';
 import { AmountText } from '@/ui/amount-text';
+import { Meter } from '@/ui/meter';
 import { MoneyEditor } from '@/ui/money-editor';
 import { Screen } from '@/ui/screen';
 
-type Editor = 'deposit' | 'withdraw' | null;
+type Editor = 'deposit' | 'withdraw' | 'adjust' | 'target' | null;
 
 export default function SavingsScreen() {
   const styles = useStyles();
-  const { loading, balance, weekRemaining, sweepEnabled, moves, refresh } = useSavingsData();
+  const {
+    loading,
+    balance,
+    weekRemaining,
+    sweepEnabled,
+    savingsTarget,
+    savingsOffset,
+    moves,
+    refresh,
+  } = useSavingsData();
   const [editor, setEditor] = useState<Editor>(null);
 
   function openDeposit() {
@@ -36,6 +46,22 @@ export default function SavingsScreen() {
   }
 
   async function handleSave(amount: number) {
+    if (editor === 'target') {
+      await updateSettings({ savingsTarget: amount });
+      setEditor(null);
+      refresh();
+      return;
+    }
+
+    if (editor === 'adjust') {
+      // Saldo nyata = saldo perpindahan + offset. Simpan selisihnya sebagai offset.
+      const movesBalance = balance - savingsOffset;
+      await updateSettings({ savingsOffset: amount - movesBalance });
+      setEditor(null);
+      refresh();
+      return;
+    }
+
     const kind = editor === 'deposit' ? 'expense' : 'income';
 
     if (editor === 'deposit' && amount > weekRemaining) {
@@ -58,6 +84,11 @@ export default function SavingsScreen() {
     refresh();
   }
 
+  async function clearTarget() {
+    await updateSettings({ savingsTarget: 0 });
+    refresh();
+  }
+
   return (
     <Screen>
       <View style={styles.header}>
@@ -74,6 +105,21 @@ export default function SavingsScreen() {
         <Text style={styles.subline}>
           {sweepEnabled ? 'Sweep otomatis aktif tiap awal bulan.' : 'Sweep otomatis dimatikan.'}
         </Text>
+
+        {savingsTarget > 0 ? (
+          <View style={styles.target}>
+            <View style={styles.targetRow}>
+              <Text style={styles.label}>Target</Text>
+              <Text style={styles.targetValue}>{formatRp(savingsTarget)}</Text>
+            </View>
+            <View style={styles.targetMeter}>
+              <Meter ratio={savingsTarget > 0 ? balance / savingsTarget : 0} zone="accent" />
+            </View>
+            <Text style={styles.targetHint}>
+              {`${Math.max(0, Math.min(100, Math.round((balance / savingsTarget) * 100)))}% tercapai`}
+            </Text>
+          </View>
+        ) : null}
 
         {loading ? (
           <Text style={styles.muted}>Memuat…</Text>
@@ -101,6 +147,33 @@ export default function SavingsScreen() {
                 ? `Bisa disisihkan dari sisa minggu ini: ${formatRp(weekRemaining)}`
                 : 'Sisa minggu ini habis, belum ada yang bisa disisihkan.'}
             </Text>
+
+            <View style={styles.links}>
+              <Pressable
+                accessibilityRole="button"
+                onPress={() => setEditor('adjust')}
+                hitSlop={space.sm}
+              >
+                <Text style={styles.link}>Sesuaikan saldo</Text>
+              </Pressable>
+              {savingsTarget > 0 ? (
+                <Pressable
+                  accessibilityRole="button"
+                  onPress={() => void clearTarget()}
+                  hitSlop={space.sm}
+                >
+                  <Text style={styles.linkMuted}>Hapus target</Text>
+                </Pressable>
+              ) : (
+                <Pressable
+                  accessibilityRole="button"
+                  onPress={() => setEditor('target')}
+                  hitSlop={space.sm}
+                >
+                  <Text style={styles.link}>Atur target</Text>
+                </Pressable>
+              )}
+            </View>
 
             <View style={styles.divider} />
 
@@ -145,12 +218,24 @@ export default function SavingsScreen() {
 
       {editor ? (
         <MoneyEditor
-          title={editor === 'deposit' ? 'Sisihkan ke tabungan' : 'Tarik dari tabungan'}
-          initial={0}
+          title={
+            editor === 'deposit'
+              ? 'Sisihkan ke tabungan'
+              : editor === 'withdraw'
+                ? 'Tarik dari tabungan'
+                : editor === 'adjust'
+                  ? 'Sesuaikan saldo'
+                  : 'Target tabungan'
+          }
+          initial={editor === 'adjust' ? balance : editor === 'target' ? savingsTarget : 0}
           hint={
             editor === 'deposit'
               ? `Maksimal ${formatRp(weekRemaining)}`
-              : `Saldo ${formatRp(balance)}`
+              : editor === 'withdraw'
+                ? `Saldo ${formatRp(balance)}`
+                : editor === 'adjust'
+                  ? 'Isi saldo tabungan yang sebenarnya (koreksi tidak mengubah jatah mingguan)'
+                  : 'Target saldo tabungan'
           }
           onCancel={() => setEditor(null)}
           onSave={(amount) => void handleSave(amount)}
@@ -196,6 +281,27 @@ const useStyles = makeThemedStyles((c: Palette) =>
       color: c.ink2,
       marginTop: space.xs,
     },
+    target: {
+      marginTop: space.lg,
+    },
+    targetRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+    },
+    targetValue: {
+      ...type.meta,
+      color: c.ink,
+    },
+    targetMeter: {
+      marginTop: space.sm,
+    },
+    targetHint: {
+      ...type.meta,
+      fontSize: 12,
+      color: c.ink3,
+      marginTop: space.xs,
+    },
     actions: {
       flexDirection: 'row',
       gap: space.md,
@@ -224,6 +330,19 @@ const useStyles = makeThemedStyles((c: Palette) =>
       ...type.meta,
       color: c.ink3,
       marginTop: space.md,
+    },
+    links: {
+      flexDirection: 'row',
+      gap: space.lg,
+      marginTop: space.md,
+    },
+    link: {
+      ...type.meta,
+      color: c.accent,
+    },
+    linkMuted: {
+      ...type.meta,
+      color: c.ink3,
     },
     divider: {
       height: size.hairline,

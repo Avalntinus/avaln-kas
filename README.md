@@ -23,7 +23,9 @@ SQLite device, backup lewat file JSON.
 
 - **Rolling budget** harian dan mingguan, mode debt + `debt_floor`
 - **Tabungan** — sisa bulan disapu otomatis tiap awal bulan (bisa dimatikan),
-  plus sisihkan/tarik manual
+  plus sisihkan/tarik manual, **target**, dan **sesuaikan saldo** (koreksi tanpa
+  mengubah jatah mingguan)
+- **Ringkasan bulanan** — pengeluaran per kategori, pemasukan, tabungan, selisih
 - **Dark mode** — ikut sistem atau pilih Terang/Gelap; palet charcoal, bukan hitam pekat
 - **Tambah cepat** — tulis “kopi 18rb” atau “kemarin parkir 5rb”; parser lokal jalan
   offline, AI Gemini opsional untuk kalimat bebas
@@ -121,7 +123,8 @@ tanggal `YYYY-MM-DD`, logika rollover tetap murni, warna hanya dari token.
 - [x] Tambah cepat (parser lokal, offline)
 - [x] Integrasi Gemini Flash (opsional, key di SecureStore, output divalidasi)
 - [x] Layar rincian minggu (7 hari + carry)
-- [x] Tabungan (sweep awal bulan, sisihkan/tarik manual)
+- [x] Tabungan (sweep awal bulan, sisihkan/tarik, target, koreksi saldo)
+- [x] Ringkasan bulanan per kategori
 - [x] Dark mode (System / Terang / Gelap)
 - [x] Build APK rilis (keystore sendiri, standalone tanpa Metro)
 - [ ] Aktifkan AI dengan API key pribadi

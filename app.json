@@ -2,7 +2,7 @@
   "expo": {
     "name": "Avaln Kas",
     "slug": "avaln-kas",
-    "version": "0.3.0",
+    "version": "0.4.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
     "scheme": "avalnkas",
@@ -17,7 +17,7 @@
       },
       "predictiveBackGestureEnabled": false,
       "package": "com.avaln.kas",
-      "versionCode": 3
+      "versionCode": 4
     },
     "platforms": [
       "android",

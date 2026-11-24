@@ -447,6 +447,11 @@ export default function SettingsScreen() {
               onPress={() => router.push('/savings')}
             />
             <Row
+              label="Target tabungan"
+              value={settings.savingsTarget > 0 ? formatRp(settings.savingsTarget) : 'Belum diatur'}
+              onPress={() => router.push('/savings')}
+            />
+            <Row
               label="Sweep otomatis"
               value={settings.savingsEnabled ? 'Aktif' : 'Nonaktif'}
               onPress={() => void save({ savingsEnabled: !settings.savingsEnabled })}

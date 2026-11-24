@@ -131,6 +131,16 @@ export default function HomeScreen() {
 
         <Pressable
           accessibilityRole="button"
+          accessibilityLabel="Ringkasan bulan ini"
+          onPress={() => router.push('/month')}
+          style={({ pressed }) => [styles.weekRow, pressed && styles.pressed]}
+        >
+          <Text style={styles.muted}>Ringkasan bulan ini</Text>
+          <Text style={styles.chevron}>›</Text>
+        </Pressable>
+
+        <Pressable
+          accessibilityRole="button"
           accessibilityLabel="Tambah cepat"
           onPress={() => router.push('/quick')}
           style={({ pressed }) => [styles.quick, pressed && styles.pressed]}

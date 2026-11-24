@@ -1,7 +1,7 @@
 import type { SQLiteDatabase } from 'expo-sqlite';
 
 export const DATABASE_NAME = 'budgeting.db';
-export const DATABASE_VERSION = 6;
+export const DATABASE_VERSION = 7;
 
 const MIGRATION_1 = `
 PRAGMA journal_mode = WAL;
@@ -97,6 +97,11 @@ ALTER TABLE settings ADD COLUMN last_sweep_period TEXT;
 ALTER TABLE transactions ADD COLUMN is_savings INTEGER NOT NULL DEFAULT 0;
 `;
 
+const MIGRATION_7 = `
+ALTER TABLE settings ADD COLUMN savings_offset INTEGER NOT NULL DEFAULT 0;
+ALTER TABLE settings ADD COLUMN savings_target INTEGER NOT NULL DEFAULT 0;
+`;
+
 export const MIGRATIONS: readonly string[] = [
   MIGRATION_1,
   MIGRATION_2,
@@ -104,6 +109,7 @@ export const MIGRATIONS: readonly string[] = [
   MIGRATION_4,
   MIGRATION_5,
   MIGRATION_6,
+  MIGRATION_7,
 ];
 
 export async function migrate(db: SQLiteDatabase): Promise<void> {

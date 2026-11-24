@@ -20,6 +20,10 @@ export interface Settings {
   savingsEnabled: boolean;
   /** Periode (YYYY-MM) terakhir yang sudah di-sweep. */
   lastSweepPeriod: string | null;
+  /** Koreksi saldo tabungan (tidak memengaruhi jatah mingguan). */
+  savingsOffset: number;
+  /** Target tabungan; 0 = belum diatur. */
+  savingsTarget: number;
 }
 
 export interface Category {
@@ -78,6 +82,8 @@ interface SettingsRow {
   theme_mode: string;
   savings_enabled: number;
   last_sweep_period: string | null;
+  savings_offset: number;
+  savings_target: number;
 }
 
 interface CategoryRow {
@@ -128,6 +134,8 @@ const SETTINGS_COLUMNS = {
   themeMode: 'theme_mode',
   savingsEnabled: 'savings_enabled',
   lastSweepPeriod: 'last_sweep_period',
+  savingsOffset: 'savings_offset',
+  savingsTarget: 'savings_target',
 } as const;
 
 type SettingsKey = keyof typeof SETTINGS_COLUMNS;
@@ -145,6 +153,8 @@ function mapSettings(row: SettingsRow): Settings {
     themeMode: row.theme_mode === 'dark' || row.theme_mode === 'light' ? row.theme_mode : 'system',
     savingsEnabled: row.savings_enabled === 1,
     lastSweepPeriod: row.last_sweep_period,
+    savingsOffset: row.savings_offset ?? 0,
+    savingsTarget: row.savings_target ?? 0,
   };
 }
 
@@ -182,7 +192,8 @@ export async function getSettings(): Promise<Settings> {
   const db = await getDb();
   const row = await db.getFirstAsync<SettingsRow>(
     `SELECT id, daily_target, weekly_budget, week_start, debt_floor, currency,
-            onboarded, started_on, theme_mode, savings_enabled, last_sweep_period
+            onboarded, started_on, theme_mode, savings_enabled, last_sweep_period,
+            savings_offset, savings_target
        FROM settings WHERE id = 1`,
   );
   if (!row) throw new Error('Settings belum terinisialisasi');
@@ -453,8 +464,10 @@ export async function getSpendByDate(from: ISODate, to: ISODate): Promise<SpendM
 export async function getSavingsBalance(): Promise<number> {
   const db = await getDb();
   const row = await db.getFirstAsync<{ total: number | null }>(
-    `SELECT SUM(CASE WHEN kind = 'expense' THEN amount ELSE -amount END) AS total
-       FROM transactions WHERE is_savings = 1`,
+    `SELECT
+        (SELECT COALESCE(s.savings_offset, 0) FROM settings s WHERE s.id = 1)
+        + (SELECT COALESCE(SUM(CASE WHEN kind = 'expense' THEN amount ELSE -amount END), 0)
+             FROM transactions WHERE is_savings = 1) AS total`,
   );
   return row?.total ?? 0;
 }
@@ -545,6 +558,8 @@ export async function exportBackup(): Promise<BackupFile> {
       themeMode: settings.themeMode,
       savingsEnabled: settings.savingsEnabled,
       lastSweepPeriod: settings.lastSweepPeriod,
+      savingsOffset: settings.savingsOffset,
+      savingsTarget: settings.savingsTarget,
     },
     categories: categories.map((category) => category.name),
     transactions: transactions.map((tx) => ({
@@ -608,7 +623,8 @@ export async function importBackup(backup: BackupFile): Promise<{ transactions: 
     await db.runAsync(
       `UPDATE settings
           SET daily_target = ?, weekly_budget = ?, week_start = ?, debt_floor = ?,
-              theme_mode = ?, savings_enabled = ?, last_sweep_period = ?
+              theme_mode = ?, savings_enabled = ?, last_sweep_period = ?,
+              savings_offset = ?, savings_target = ?
         WHERE id = 1`,
       backup.settings.dailyTarget,
       backup.settings.weeklyBudget,
@@ -617,6 +633,8 @@ export async function importBackup(backup: BackupFile): Promise<{ transactions: 
       backup.settings.themeMode,
       backup.settings.savingsEnabled ? 1 : 0,
       backup.settings.lastSweepPeriod,
+      backup.settings.savingsOffset,
+      backup.settings.savingsTarget,
     );
   });
 

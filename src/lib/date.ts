@@ -12,6 +12,20 @@ const ISO_RE = /^\d{4}-\d{2}-\d{2}$/;
 const HARI = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
 const HARI_SHORT = ['Min', 'Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab'];
 const BULAN = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
+const BULAN_PANJANG = [
+  'Januari',
+  'Februari',
+  'Maret',
+  'April',
+  'Mei',
+  'Juni',
+  'Juli',
+  'Agustus',
+  'September',
+  'Oktober',
+  'November',
+  'Desember',
+];
 
 export function isISODate(value: string): value is ISODate {
   if (!ISO_RE.test(value)) return false;
@@ -62,6 +76,29 @@ export function weekDates(start: ISODate): ISODate[] {
 
 export function diffDays(from: ISODate, to: ISODate): number {
   return Math.round((toUtcMs(to) - toUtcMs(from)) / MS_PER_DAY);
+}
+
+export function monthStart(iso: ISODate): ISODate {
+  return `${iso.slice(0, 7)}-01`;
+}
+
+/** Awal bulan setelah digeser `delta` bulan. */
+export function addMonths(iso: ISODate, delta: number): ISODate {
+  const [year, month] = iso.split('-').map(Number);
+  const shifted = new Date(Date.UTC(year, month - 1 + delta, 1));
+  const y = shifted.getUTCFullYear();
+  const m = String(shifted.getUTCMonth() + 1).padStart(2, '0');
+  return `${y}-${m}-01`;
+}
+
+export function monthEnd(iso: ISODate): ISODate {
+  return addDays(addMonths(iso, 1), -1);
+}
+
+/** "November 2026" */
+export function formatMonthYear(iso: ISODate): string {
+  const [y, m] = iso.split('-').map(Number);
+  return `${BULAN_PANJANG[m - 1]} ${y}`;
 }
 
 /** "Senin, 23 Nov" */
