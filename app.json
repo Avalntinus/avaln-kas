@@ -2,7 +2,7 @@
   "expo": {
     "name": "Avaln Kas",
     "slug": "avaln-kas",
-    "version": "0.4.0",
+    "version": "0.5.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
     "scheme": "avalnkas",
@@ -17,7 +17,7 @@
       },
       "predictiveBackGestureEnabled": false,
       "package": "com.avaln.kas",
-      "versionCode": 4
+      "versionCode": 5
     },
     "platforms": [
       "android",
@@ -44,6 +44,25 @@
         "expo-navigation-bar",
         {
           "enforceContrast": false
+        }
+      ],
+      [
+        "react-native-android-widget",
+        {
+          "widgets": [
+            {
+              "name": "Budget",
+              "label": "Avaln Kas",
+              "description": "Sisa hari ini dan sisa minggu ini.",
+              "minWidth": "250dp",
+              "minHeight": "110dp",
+              "targetCellWidth": 4,
+              "targetCellHeight": 2,
+              "resizeMode": "horizontal|vertical",
+              "updatePeriodMillis": 1800000,
+              "previewImage": "./assets/widget-preview/budget.png"
+            }
+          ]
         }
       ]
     ],

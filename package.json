@@ -1,8 +1,8 @@
 {
   "name": "avaln-kas",
-  "version": "0.4.0",
+  "version": "0.5.0",
   "private": true,
-  "main": "expo-router/entry",
+  "main": "src/main.tsx",
   "scripts": {
     "start": "expo start",
     "android": "expo run:android",
@@ -36,6 +36,7 @@
     "react": "19.3.0",
     "react-dom": "19.3.0",
     "react-native": "0.88.1",
+    "react-native-android-widget": "^0.26.0",
     "react-native-gesture-handler": "~3.3.0",
     "react-native-reanimated": "4.7.1",
     "react-native-safe-area-context": "~5.11.1",

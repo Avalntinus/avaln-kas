@@ -18,6 +18,7 @@ import {
   type WeekStartDay,
 } from '@/logic/rollover';
 import { maybeSweepSavings } from '@/features/savings/sweep';
+import { refreshBudgetWidget } from '@/features/widget/refresh';
 import { closePastWeeks } from '@/logic/weeks';
 
 export interface HomeData {
@@ -99,6 +100,8 @@ export function useHomeData(): HomeData {
             savingsBalance,
             needsSetup: !settings.onboarded,
           });
+          // Segarkan widget kalau ada di home screen (no-op di Expo Go).
+          void refreshBudgetWidget();
         } catch (error) {
           if (cancelled) return;
           setData({

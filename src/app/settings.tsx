@@ -31,6 +31,7 @@ import {
   type Category,
   type Settings,
 } from '@/db/repo';
+import { pinBudgetWidget } from '@/features/widget/pin';
 import { parseBackup } from '@/lib/backup';
 import { todayISO } from '@/lib/date';
 import { formatRp, formatSignedRp } from '@/lib/money';
@@ -191,6 +192,16 @@ export default function SettingsScreen() {
         },
       },
     ]);
+  }
+
+  async function handlePinWidget() {
+    const pinned = await pinBudgetWidget();
+    if (!pinned) {
+      Alert.alert(
+        'Tidak bisa menambah widget',
+        'Launcher ini tidak mendukung permintaan pin. Tambahkan manual: tahan home screen → Widgets → Avaln Kas.',
+      );
+    }
   }
 
   async function handleExport() {
@@ -393,6 +404,10 @@ export default function SettingsScreen() {
             </View>
             <Text style={styles.sectionHint}>
               “Sistem” mengikuti mode gelap Android. Pilihan disimpan di perangkat ini.
+            </Text>
+            <Row label="Widget home screen" value="Tambah" onPress={() => void handlePinWidget()} />
+            <Text style={styles.sectionHint}>
+              Menampilkan sisa hari ini dan sisa minggu. Hanya tersedia di APK, bukan Expo Go.
             </Text>
           </Section>
 

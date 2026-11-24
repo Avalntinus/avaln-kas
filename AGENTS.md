@@ -175,6 +175,8 @@ src/lib/
 
 src/features/home/use-home-data.ts   query + closePastWeeks + refresh saat fokus
 src/features/savings/                hook tabungan + sweep otomatis
+src/features/widget/                 widget Android (data, komponen, task handler)
+src/main.tsx                         entry: expo-router + register widget (APK saja)
 src/theme/tokens.ts                  satu-satunya sumber warna/spacing/tipe
 
 ```
@@ -314,6 +316,14 @@ space 4/8/12/16/24/32/48 · radius 12/999 · meter 2px · touch 44
   (`gsettings set org.gnome.mutter check-alive-timeout 0`). Kalau muncul lagi,
   pilih **Wait**, jangan Force Quit. Host 15 GB mudah penuh (emulator ±2,6 GB).
 - Emulator headless + `-gpu off` lambat merender; beri jeda 1–2 detik setelah tap.
+- **Widget (react-native-android-widget):** komponen widget WAJIB diawali
+  `'use no memo';` (React Compiler) dan **tidak boleh memakai Fragment**
+  (`<>...</>`) — pakai `FlexWidget`. Registrasi handler harus **sinkron**
+  (`require` di `src/main.tsx`, bukan dynamic import) agar tidak kalah balapan
+  dengan event Android. Deteksi Expo Go lewat modul native `AndroidWidget`
+  (`features/widget/support.ts`), bukan `Constants.executionEnvironment`
+  (SDK 58 mengembalikan `bare`). Tambah widget lewat Setelan → Tampilan
+  (`requestPinWidget`).
 - Setelah menambah **route baru** atau mengubah file yang di-cache, Fast Refresh
   kadang tetap menyajikan bundle lama. Reload penuh: force-stop Expo Go lalu buka
   ulang deep link (atau dev menu → Reload).
@@ -324,7 +334,7 @@ Selesai: nama **Avaln Kas** + identitas teknis, scaffold, tokens, money/date, ro
 DB v7 (`kind`, `onboarded`, `started_on`, `theme_mode`, tabungan + offset/target),
 layar sambutan, Home, Tambah, Riwayat, Rincian minggu, Tambah cepat (lokal + AI),
 **tabungan** (sweep, target, koreksi saldo), **ringkasan bulanan**, **dark mode**,
-Settings, kategori CRUD, backup JSON, tutup minggu otomatis.
+**widget Android**, Settings, kategori CRUD, backup JSON, tutup minggu otomatis.
 **81 test hijau** (rollover, perencana minggu, parser tambah cepat, jadwal sweep,
 ringkasan bulanan, tanggal, validator backup & AI).
 Sudah diuji native di emulator: onboarding → pengeluaran → pemasukan → riwayat →

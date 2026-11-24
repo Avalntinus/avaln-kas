@@ -26,6 +26,8 @@ SQLite device, backup lewat file JSON.
   plus sisihkan/tarik manual, **target**, dan **sesuaikan saldo** (koreksi tanpa
   mengubah jatah mingguan)
 - **Ringkasan bulanan** — pengeluaran per kategori, pemasukan, tabungan, selisih
+- **Widget home screen** — sisa hari ini & minggu ini; tambahkan dari
+  Setelan → Tampilan → “Widget home screen” (khusus APK, bukan Expo Go)
 - **Dark mode** — ikut sistem atau pilih Terang/Gelap; palet charcoal, bukan hitam pekat
 - **Tambah cepat** — tulis “kopi 18rb” atau “kemarin parkir 5rb”; parser lokal jalan
   offline, AI Gemini opsional untuk kalimat bebas
@@ -55,6 +57,7 @@ Contoh: pool 210.000 → jatah 30.000/hari. Senin belanja 22.000 → Selasa puny
 
 - Expo SDK 58 · React Native 0.88 · TypeScript (strict)
 - expo-router · expo-sqlite · expo-secure-store (API key AI) · Gemini Flash (opsional)
+- react-native-android-widget (widget native, butuh build APK)
 - Vitest untuk logika murni
 
 ## Menjalankan
@@ -125,6 +128,7 @@ tanggal `YYYY-MM-DD`, logika rollover tetap murni, warna hanya dari token.
 - [x] Layar rincian minggu (7 hari + carry)
 - [x] Tabungan (sweep awal bulan, sisihkan/tarik, target, koreksi saldo)
 - [x] Ringkasan bulanan per kategori
+- [x] Widget Android (2×4 sel: sisa hari ini + minggu)
 - [x] Dark mode (System / Terang / Gelap)
 - [x] Build APK rilis (keystore sendiri, standalone tanpa Metro)
 - [ ] Aktifkan AI dengan API key pribadi
