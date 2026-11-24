@@ -82,14 +82,27 @@ const CATEGORY_WORDS: Record<string, string[]> = {
     'transport',
     'taksi',
   ],
-  Jajan: ['jajan', 'snack', 'camilan', 'kopi', 'cafe', 'kafe', 'boba', 'es', 'kue', 'martabak', 'dessert'],
+  Jajan: [
+    'jajan',
+    'snack',
+    'camilan',
+    'kopi',
+    'cafe',
+    'kafe',
+    'boba',
+    'es',
+    'kue',
+    'martabak',
+    'dessert',
+  ],
 };
 
 const AMOUNT_RE = /(\d{1,3}(?:[.,]\d{3})+|\d+(?:[.,]\d+)?)\s*(juta|jt|ribu|rb|k)?/gi;
 
 function parseAmount(raw: string, unit?: string): number | null {
   const u = (unit ?? '').toLowerCase();
-  const multiplier = u === 'jt' || u === 'juta' ? 1_000_000 : u === 'rb' || u === 'ribu' || u === 'k' ? 1_000 : 1;
+  const multiplier =
+    u === 'jt' || u === 'juta' ? 1_000_000 : u === 'rb' || u === 'ribu' || u === 'k' ? 1_000 : 1;
 
   let normalized = raw;
 
@@ -123,7 +136,9 @@ function parseAmount(raw: string, unit?: string): number | null {
   return amount;
 }
 
-function findAmount(input: string): { amount: number; raw: string; unit?: string; index: number } | null {
+function findAmount(
+  input: string,
+): { amount: number; raw: string; unit?: string; index: number } | null {
   AMOUNT_RE.lastIndex = 0;
   let match: RegExpExecArray | null;
 
@@ -181,6 +196,7 @@ export function parseQuickAdd(
     note,
     categoryName,
     date,
-    confident: Boolean(found.unit) || /[.,]/.test(found.raw) || found.raw.replace(/\D/g, '').length >= 4,
+    confident:
+      Boolean(found.unit) || /[.,]/.test(found.raw) || found.raw.replace(/\D/g, '').length >= 4,
   };
 }

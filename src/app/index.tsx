@@ -7,12 +7,14 @@ import { formatLongDate } from '@/lib/date';
 import { transactionLabel } from '@/lib/labels';
 import { formatRp, formatSignedRp } from '@/lib/money';
 import { meterZone } from '@/logic/rollover';
-import { color, radius, size, space, type } from '@/theme/tokens';
+import { makeThemedStyles } from '@/theme/theme';
+import { radius, size, space, type, type Palette } from '@/theme/tokens';
 import { AmountText } from '@/ui/amount-text';
 import { Meter } from '@/ui/meter';
 import { Screen } from '@/ui/screen';
 
 export default function HomeScreen() {
+  const styles = useStyles();
   const { width } = useWindowDimensions();
   const insets = useSafeAreaInsets();
   const { loading, error, home, today, transactions, needsSetup } = useHomeData();
@@ -184,143 +186,145 @@ export default function HomeScreen() {
   );
 }
 
-const styles = StyleSheet.create({
-  scrollContent: {
-    paddingBottom: size.fab + space.xxl,
-  },
-  topRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    gap: space.md,
-  },
-  date: {
-    ...type.meta,
-    color: color.ink3,
-    flexShrink: 1,
-  },
-  links: {
-    flexDirection: 'row',
-    gap: space.lg,
-  },
-  link: {
-    ...type.meta,
-    color: color.ink2,
-  },
-  label: {
-    ...type.label,
-    color: color.ink3,
-  },
-  hero: {
-    marginTop: space.xxl,
-  },
-  heroAmount: {
-    marginTop: space.sm,
-  },
-  subline: {
-    ...type.meta,
-    color: color.ink2,
-    marginTop: space.sm,
-  },
-  meterWrap: {
-    marginTop: space.xl,
-  },
-  weekRow: {
-    marginTop: space.lg,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-  },
-  weekValue: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: space.xs,
-  },
-  chevron: {
-    ...type.meta,
-    color: color.ink3,
-    marginTop: -2,
-  },
-  quick: {
-    marginTop: space.lg,
-    minHeight: size.touch,
-    borderRadius: radius.full,
-    backgroundColor: color.sunken,
-    paddingHorizontal: space.lg,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-  },
-  quickText: {
-    ...type.meta,
-    color: color.ink2,
-    flexShrink: 1,
-  },
-  muted: {
-    ...type.meta,
-    color: color.ink2,
-  },
-  caption: {
-    ...type.meta,
-    color: color.ink3,
-  },
-  divider: {
-    height: size.hairline,
-    backgroundColor: color.hairline,
-    marginTop: space.lg,
-  },
-  listHeader: {
-    marginTop: space.lg,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-  },
-  empty: {
-    ...type.meta,
-    color: color.ink3,
-    marginTop: space.lg,
-  },
-  row: {
-    minHeight: size.touch,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    gap: space.lg,
-  },
-  rowBorder: {
-    borderTopWidth: size.hairline,
-    borderTopColor: color.hairline,
-  },
-  pressed: {
-    opacity: 0.5,
-  },
-  rowNote: {
-    ...type.body,
-    color: color.ink,
-    flexShrink: 1,
-  },
-  error: {
-    ...type.body,
-    color: color.danger,
-  },
-  fab: {
-    position: 'absolute',
-    right: space.xl,
-    bottom: space.xl,
-    width: size.fab,
-    height: size.fab,
-    borderRadius: radius.full,
-    backgroundColor: color.ink,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  fabPressed: {
-    opacity: 0.7,
-  },
-  fabLabel: {
-    color: color.bg,
-    fontSize: 30,
-    lineHeight: 34,
-    fontWeight: '300',
-  },
-});
+const useStyles = makeThemedStyles((c: Palette) =>
+  StyleSheet.create({
+    scrollContent: {
+      paddingBottom: size.fab + space.xxl,
+    },
+    topRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      gap: space.md,
+    },
+    date: {
+      ...type.meta,
+      color: c.ink3,
+      flexShrink: 1,
+    },
+    links: {
+      flexDirection: 'row',
+      gap: space.lg,
+    },
+    link: {
+      ...type.meta,
+      color: c.ink2,
+    },
+    label: {
+      ...type.label,
+      color: c.ink3,
+    },
+    hero: {
+      marginTop: space.xxl,
+    },
+    heroAmount: {
+      marginTop: space.sm,
+    },
+    subline: {
+      ...type.meta,
+      color: c.ink2,
+      marginTop: space.sm,
+    },
+    meterWrap: {
+      marginTop: space.xl,
+    },
+    weekRow: {
+      marginTop: space.lg,
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+    },
+    weekValue: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: space.xs,
+    },
+    chevron: {
+      ...type.meta,
+      color: c.ink3,
+      marginTop: -2,
+    },
+    quick: {
+      marginTop: space.lg,
+      minHeight: size.touch,
+      borderRadius: radius.full,
+      backgroundColor: c.sunken,
+      paddingHorizontal: space.lg,
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+    },
+    quickText: {
+      ...type.meta,
+      color: c.ink2,
+      flexShrink: 1,
+    },
+    muted: {
+      ...type.meta,
+      color: c.ink2,
+    },
+    caption: {
+      ...type.meta,
+      color: c.ink3,
+    },
+    divider: {
+      height: size.hairline,
+      backgroundColor: c.hairline,
+      marginTop: space.lg,
+    },
+    listHeader: {
+      marginTop: space.lg,
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+    },
+    empty: {
+      ...type.meta,
+      color: c.ink3,
+      marginTop: space.lg,
+    },
+    row: {
+      minHeight: size.touch,
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      gap: space.lg,
+    },
+    rowBorder: {
+      borderTopWidth: size.hairline,
+      borderTopColor: c.hairline,
+    },
+    pressed: {
+      opacity: 0.5,
+    },
+    rowNote: {
+      ...type.body,
+      color: c.ink,
+      flexShrink: 1,
+    },
+    error: {
+      ...type.body,
+      color: c.danger,
+    },
+    fab: {
+      position: 'absolute',
+      right: space.xl,
+      bottom: space.xl,
+      width: size.fab,
+      height: size.fab,
+      borderRadius: radius.full,
+      backgroundColor: c.ink,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    fabPressed: {
+      opacity: 0.7,
+    },
+    fabLabel: {
+      color: c.bg,
+      fontSize: 30,
+      lineHeight: 34,
+      fontWeight: '300',
+    },
+  }),
+);

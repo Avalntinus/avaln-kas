@@ -3,7 +3,8 @@ import { Modal, Pressable, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { digitsToAmount, formatRp } from '@/lib/money';
-import { color, radius, size, space, type } from '@/theme/tokens';
+import { makeThemedStyles } from '@/theme/theme';
+import { radius, size, space, type, type Palette } from '@/theme/tokens';
 import { MoneyPad } from '@/ui/money-pad';
 
 const MAX_DIGITS = 10;
@@ -31,6 +32,8 @@ export function MoneyEditor({
   onCancel,
   onSave,
 }: MoneyEditorProps) {
+  const styles = useStyles();
+
   // Modal dipasang hanya saat dibuka (lihat Settings), jadi nilai awal cukup once.
   const [digits, setDigits] = useState(() =>
     initial > 0 ? String(Math.round(Math.abs(initial))) : '',
@@ -80,54 +83,56 @@ export function MoneyEditor({
   );
 }
 
-const styles = StyleSheet.create({
-  backdrop: {
-    flex: 1,
-    justifyContent: 'flex-end',
-    backgroundColor: 'rgba(18, 16, 14, 0.28)',
-  },
-  panel: {
-    backgroundColor: color.bg,
-    borderTopLeftRadius: radius.md,
-    borderTopRightRadius: radius.md,
-    paddingHorizontal: space.xl,
-    paddingTop: space.lg,
-  },
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    minHeight: size.touch,
-  },
-  title: {
-    ...type.label,
-    color: color.ink3,
-  },
-  cancel: {
-    ...type.meta,
-    color: color.ink2,
-  },
-  save: {
-    ...type.meta,
-    color: color.ink,
-    fontWeight: '600',
-  },
-  saveDisabled: {
-    color: color.ink3,
-  },
-  amount: {
-    ...type.display,
-    fontSize: 36,
-    lineHeight: 44,
-    color: color.ink,
-    textAlign: 'center',
-    marginTop: space.lg,
-  },
-  hint: {
-    ...type.meta,
-    color: color.ink3,
-    textAlign: 'center',
-    marginTop: space.sm,
-    marginBottom: space.lg,
-  },
-});
+const useStyles = makeThemedStyles((c: Palette) =>
+  StyleSheet.create({
+    backdrop: {
+      flex: 1,
+      justifyContent: 'flex-end',
+      backgroundColor: 'rgba(18, 16, 14, 0.28)',
+    },
+    panel: {
+      backgroundColor: c.bg,
+      borderTopLeftRadius: radius.md,
+      borderTopRightRadius: radius.md,
+      paddingHorizontal: space.xl,
+      paddingTop: space.lg,
+    },
+    header: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      minHeight: size.touch,
+    },
+    title: {
+      ...type.label,
+      color: c.ink3,
+    },
+    cancel: {
+      ...type.meta,
+      color: c.ink2,
+    },
+    save: {
+      ...type.meta,
+      color: c.ink,
+      fontWeight: '600',
+    },
+    saveDisabled: {
+      color: c.ink3,
+    },
+    amount: {
+      ...type.display,
+      fontSize: 36,
+      lineHeight: 44,
+      color: c.ink,
+      textAlign: 'center',
+      marginTop: space.lg,
+    },
+    hint: {
+      ...type.meta,
+      color: c.ink3,
+      textAlign: 'center',
+      marginTop: space.sm,
+      marginBottom: space.lg,
+    },
+  }),
+);

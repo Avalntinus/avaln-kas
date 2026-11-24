@@ -8,6 +8,9 @@ ACCENT = (31, 111, 92, 255)
 HAIRLINE = (232, 230, 225, 255)
 BG = (250, 250, 248, 255)
 BLACK = (0, 0, 0, 255)
+LIGHT_INK = (242, 241, 237, 255)
+DARK_ACCENT = (79, 169, 143, 255)
+DARK_HAIRLINE = (46, 42, 38, 255)
 
 # Geometri (kanvas 1024, mark sudah di tengah vertikal)
 APEX = (512, 219)
@@ -45,6 +48,8 @@ def make(size, bg=None, scale=1.0, color_mode="full", center=(512, 512)):
     d = ImageDraw.Draw(img)
     if color_mode == "mono":
         draw_mark(d, size, scale, center, a=BLACK, fill=BLACK, track=BLACK)
+    elif color_mode == "dark":
+        draw_mark(d, size, scale, center, a=LIGHT_INK, fill=DARK_ACCENT, track=DARK_HAIRLINE)
     else:
         draw_mark(d, size, scale, center)
     return img.resize((size, size), Image.LANCZOS)
@@ -56,6 +61,7 @@ make(1024, bg=BG).save(f"{out}/android-icon-background.png")
 make(1024, scale=0.80).save(f"{out}/android-icon-foreground.png")
 make(432, scale=0.86, color_mode="mono").save(f"{out}/android-icon-monochrome.png")
 make(512, scale=0.92).save(f"{out}/splash-icon.png")
+make(512, scale=0.92, color_mode="dark").save(f"{out}/splash-icon-dark.png")
 
 # pratinjau 512 + 96 + 48 untuk cek legibilitas
 make(512, bg=BG).save("/tmp/opencode/icon-512.png")

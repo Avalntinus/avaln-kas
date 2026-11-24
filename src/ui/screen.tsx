@@ -2,7 +2,8 @@ import type { ReactNode } from 'react';
 import { useWindowDimensions, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-import { color, space } from '@/theme/tokens';
+import { useTheme } from '@/theme/theme';
+import { space } from '@/theme/tokens';
 
 /**
  * Lebar konten maksimum. Di tablet, teks selebar 1600px sulit dibaca;
@@ -16,10 +17,11 @@ export type ScreenProps = {
 
 export function Screen({ children }: ScreenProps) {
   const { width } = useWindowDimensions();
+  const { colors } = useTheme();
   const horizontal = width < 360 ? space.lg : space.xl;
 
   return (
-    <SafeAreaView edges={['top']} style={{ flex: 1, backgroundColor: color.bg }}>
+    <SafeAreaView edges={['top']} style={{ flex: 1, backgroundColor: colors.bg }}>
       <View
         style={{
           flex: 1,

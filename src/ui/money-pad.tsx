@@ -1,6 +1,7 @@
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 
-import { color, radius, size, type } from '@/theme/tokens';
+import { makeThemedStyles } from '@/theme/theme';
+import { radius, size, type, type Palette } from '@/theme/tokens';
 
 const KEYS = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '000', '0', '⌫'] as const;
 
@@ -14,6 +15,8 @@ export type MoneyPadProps = {
  * pembagian 100 dan memakai grid hairline sesuai arah minimalis.
  */
 export function MoneyPad({ onDigit }: MoneyPadProps) {
+  const styles = useStyles();
+
   return (
     <View style={styles.grid}>
       {KEYS.map((key, index) => {
@@ -40,32 +43,34 @@ export function MoneyPad({ onDigit }: MoneyPadProps) {
   );
 }
 
-const styles = StyleSheet.create({
-  grid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-  },
-  key: {
-    width: '33.3333%',
-    height: 64,
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderRadius: radius.md,
-  },
-  keyRightBorder: {
-    borderRightWidth: size.hairline,
-    borderRightColor: color.hairline,
-  },
-  keyBottomBorder: {
-    borderBottomWidth: size.hairline,
-    borderBottomColor: color.hairline,
-  },
-  keyPressed: {
-    backgroundColor: color.sunken,
-  },
-  keyLabel: {
-    ...type.title,
-    color: color.ink,
-    fontWeight: '400',
-  },
-});
+const useStyles = makeThemedStyles((c: Palette) =>
+  StyleSheet.create({
+    grid: {
+      flexDirection: 'row',
+      flexWrap: 'wrap',
+    },
+    key: {
+      width: '33.3333%',
+      height: 64,
+      alignItems: 'center',
+      justifyContent: 'center',
+      borderRadius: radius.md,
+    },
+    keyRightBorder: {
+      borderRightWidth: size.hairline,
+      borderRightColor: c.hairline,
+    },
+    keyBottomBorder: {
+      borderBottomWidth: size.hairline,
+      borderBottomColor: c.hairline,
+    },
+    keyPressed: {
+      backgroundColor: c.sunken,
+    },
+    keyLabel: {
+      ...type.title,
+      color: c.ink,
+      fontWeight: '400',
+    },
+  }),
+);

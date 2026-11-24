@@ -79,7 +79,10 @@ describe('parseQuickAdd', () => {
   });
 
   it('menghormati kategori yang tidak ada di database', () => {
-    const only = parseQuickAdd('kopi 18rb', { today: TODAY, categories: [{ id: 1, name: 'Makan' }] });
+    const only = parseQuickAdd('kopi 18rb', {
+      today: TODAY,
+      categories: [{ id: 1, name: 'Makan' }],
+    });
     expect(only?.categoryName).toBeNull();
   });
 

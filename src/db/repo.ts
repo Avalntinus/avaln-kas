@@ -1,6 +1,7 @@
 import { BACKUP_APP, BACKUP_VERSION, type BackupFile } from '../lib/backup';
 import { addDays, todayISO, type ISODate } from '../lib/date';
 import { splitDaily } from '../logic/rollover';
+import type { ThemeMode } from '../theme/tokens';
 import type { SpendMap } from '../logic/rollover';
 import { getDb } from './index';
 
@@ -15,6 +16,7 @@ export interface Settings {
   onboarded: boolean;
   /** Tanggal lokal saat app mulai dipakai; minggu sebelumnya diabaikan. */
   startedOn: ISODate;
+  themeMode: ThemeMode;
 }
 
 export interface Category {
@@ -67,6 +69,7 @@ interface SettingsRow {
   currency: string;
   onboarded: number;
   started_on: string | null;
+  theme_mode: string;
 }
 
 interface CategoryRow {
@@ -113,6 +116,7 @@ const SETTINGS_COLUMNS = {
   currency: 'currency',
   onboarded: 'onboarded',
   startedOn: 'started_on',
+  themeMode: 'theme_mode',
 } as const;
 
 type SettingsKey = keyof typeof SETTINGS_COLUMNS;
@@ -127,6 +131,7 @@ function mapSettings(row: SettingsRow): Settings {
     currency: row.currency,
     onboarded: row.onboarded === 1,
     startedOn: row.started_on ?? todayISO(),
+    themeMode: row.theme_mode === 'dark' || row.theme_mode === 'light' ? row.theme_mode : 'system',
   };
 }
 
@@ -162,7 +167,8 @@ function mapWeek(row: WeekDbRow): WeekRow {
 export async function getSettings(): Promise<Settings> {
   const db = await getDb();
   const row = await db.getFirstAsync<SettingsRow>(
-    `SELECT id, daily_target, weekly_budget, week_start, debt_floor, currency, onboarded, started_on
+    `SELECT id, daily_target, weekly_budget, week_start, debt_floor, currency,
+            onboarded, started_on, theme_mode
        FROM settings WHERE id = 1`,
   );
   if (!row) throw new Error('Settings belum terinisialisasi');
@@ -465,6 +471,7 @@ export async function exportBackup(): Promise<BackupFile> {
       weeklyBudget: settings.weeklyBudget,
       weekStart: settings.weekStart,
       debtFloor: settings.debtFloor,
+      themeMode: settings.themeMode,
     },
     categories: categories.map((category) => category.name),
     transactions: transactions.map((tx) => ({
@@ -524,12 +531,14 @@ export async function importBackup(backup: BackupFile): Promise<{ transactions: 
 
     await db.runAsync(
       `UPDATE settings
-          SET daily_target = ?, weekly_budget = ?, week_start = ?, debt_floor = ?
+          SET daily_target = ?, weekly_budget = ?, week_start = ?, debt_floor = ?,
+              theme_mode = ?
         WHERE id = 1`,
       backup.settings.dailyTarget,
       backup.settings.weeklyBudget,
       backup.settings.weekStart,
       backup.settings.debtFloor,
+      backup.settings.themeMode,
     );
   });
 

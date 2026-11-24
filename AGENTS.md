@@ -227,6 +227,7 @@ Aturan:
 - Migrasi: `MIGRATIONS[i]` dijalankan sekali sesuai `PRAGMA user_version`.
   Tambah migrasi baru = naikkan `DATABASE_VERSION` + push SQL ke array.
 - Seed hanya untuk instalasi baru (4 kategori + settings 30.000/210.000).
+- `settings.theme_mode` (migrasi v5) = preferensi tampilan (`system|light|dark`).
 - `settings.started_on` (migrasi v4) = tanggal app mulai dipakai. Minggu sebelum
   tanggal ini **tidak** diberi budget/rollover, supaya transaksi yang di-backdate
   ke minggu lalu tidak tiba-tiba memberi surplus. Migrasi v4 juga menghapus cache
@@ -236,7 +237,16 @@ Aturan:
 - Migrasi v3 menandai `onboarded = 1` untuk database lama yang sudah punya transaksi;
   instalasi baru tetap 0 supaya layar sambutan muncul.
 
-## 8. Gaya UI (Minimalism, paper light)
+## 8. Gaya UI (Minimalism, paper light + charcoal dark)
+
+Tema: `src/theme/theme.tsx` → `ThemeProvider` + `useTheme()` + `makeThemedStyles()`.
+Mode disimpan di `settings.theme_mode` (`system|light|dark`). **Jangan impor `color`
+statis**; styles dibuat per palet:
+
+```tsx
+const useStyles = makeThemedStyles((c: Palette) => StyleSheet.create({ ... }));
+// di komponen: const styles = useStyles(); const { colors } = useTheme();
+```
 
 Token (`src/theme/tokens.ts`):
 
@@ -298,7 +308,8 @@ space 4/8/12/16/24/32/48 · radius 12/999 · meter 2px · touch 44
 ## 11. Status & backlog
 
 Selesai: nama **Avaln Kas** + identitas teknis, scaffold, tokens, money/date, rollover,
-DB v4 (`kind`, `onboarded`, `started_on`), layar sambutan, Home, Tambah, Riwayat, Settings,
+DB v5 (`kind`, `onboarded`, `started_on`, `theme_mode`), layar sambutan, Home, Tambah,
+Riwayat, Rincian minggu, Tambah cepat (lokal + AI opsional), **dark mode**, Settings,
 kategori CRUD, backup export/import JSON, tutup minggu otomatis.
 **68 test hijau** (rollover, perencana minggu, parser tambah cepat, validator backup & AI).
 Sudah diuji native di emulator: onboarding → pengeluaran → pemasukan → riwayat →

@@ -16,7 +16,8 @@ import { getAiKey } from '@/ai/key';
 import { addTransaction, listCategories, type Category } from '@/db/repo';
 import { addDays, formatDayMonth, todayISO, type ISODate } from '@/lib/date';
 import { parseQuickAdd, type QuickParse } from '@/logic/quick-add';
-import { color, radius, size, space, type } from '@/theme/tokens';
+import { makeThemedStyles, useTheme } from '@/theme/theme';
+import { radius, size, space, type, type Palette } from '@/theme/tokens';
 import { AmountText } from '@/ui/amount-text';
 import { Screen } from '@/ui/screen';
 
@@ -29,6 +30,8 @@ type Result = Pick<QuickParse, 'kind' | 'amount' | 'note' | 'categoryName' | 'da
 };
 
 export default function QuickScreen() {
+  const styles = useStyles();
+  const { colors } = useTheme();
   const [text, setText] = useState('');
   const [categories, setCategories] = useState<Category[]>([]);
   const [hasKey, setHasKey] = useState(false);
@@ -154,7 +157,7 @@ export default function QuickScreen() {
             setResult(null);
           }}
           placeholder="mis. makan siang 25rb"
-          placeholderTextColor={color.ink3}
+          placeholderTextColor={colors.ink3}
           style={styles.input}
           autoFocus
           returnKeyType="go"
@@ -190,9 +193,16 @@ export default function QuickScreen() {
           ]}
         >
           {busy ? (
-            <ActivityIndicator color={color.bg} />
+            <ActivityIndicator color={colors.bg} />
           ) : (
-            <Text style={styles.analyzeLabel}>{hasKey ? 'Proses (lokal / AI)' : 'Proses'}</Text>
+            <Text
+              style={[
+                styles.analyzeLabel,
+                (busy || text.trim() === '') && styles.analyzeLabelDisabled,
+              ]}
+            >
+              {hasKey ? 'Proses (lokal / AI)' : 'Proses'}
+            </Text>
           )}
         </Pressable>
 
@@ -256,157 +266,162 @@ export default function QuickScreen() {
   );
 }
 
-const styles = StyleSheet.create({
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    minHeight: size.touch,
-  },
-  headerSpacer: {
-    width: 56,
-  },
-  back: {
-    ...type.meta,
-    color: color.ink2,
-    width: 56,
-  },
-  label: {
-    ...type.label,
-    color: color.ink3,
-  },
-  content: {
-    paddingBottom: space.huge,
-  },
-  title: {
-    ...type.title,
-    color: color.ink,
-    marginTop: space.xl,
-  },
-  body: {
-    ...type.meta,
-    color: color.ink2,
-    marginTop: space.sm,
-    lineHeight: 21,
-  },
-  input: {
-    ...type.body,
-    marginTop: space.xl,
-    minHeight: 52,
-    borderRadius: radius.md,
-    backgroundColor: color.sunken,
-    paddingHorizontal: space.lg,
-    color: color.ink,
-  },
-  examples: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: space.sm,
-    marginTop: space.md,
-  },
-  example: {
-    paddingHorizontal: space.md,
-    paddingVertical: space.sm,
-    borderRadius: radius.full,
-    borderWidth: size.hairline,
-    borderColor: color.hairline,
-  },
-  exampleText: {
-    ...type.meta,
-    fontSize: 13,
-    color: color.ink2,
-  },
-  analyze: {
-    marginTop: space.lg,
-    minHeight: 48,
-    borderRadius: radius.full,
-    backgroundColor: color.ink,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  analyzeDisabled: {
-    backgroundColor: color.hairline,
-  },
-  analyzeLabel: {
-    ...type.body,
-    color: color.bg,
-    fontWeight: '600',
-  },
-  pressed: {
-    opacity: 0.7,
-  },
-  error: {
-    ...type.meta,
-    color: color.danger,
-    marginTop: space.lg,
-    lineHeight: 20,
-  },
-  card: {
-    marginTop: space.xl,
-    borderTopWidth: size.hairline,
-    borderTopColor: color.hairline,
-    paddingTop: space.lg,
-  },
-  cardTop: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-  },
-  cardLabel: {
-    ...type.label,
-    color: color.ink3,
-  },
-  cardDate: {
-    ...type.meta,
-    fontSize: 12,
-    color: color.ink3,
-  },
-  cardAmount: {
-    fontSize: 40,
-    lineHeight: 48,
-    marginTop: space.sm,
-  },
-  cardMeta: {
-    ...type.meta,
-    color: color.ink2,
-    marginTop: space.xs,
-  },
-  actions: {
-    flexDirection: 'row',
-    gap: space.md,
-    marginTop: space.xl,
-  },
-  secondary: {
-    flex: 1,
-    minHeight: 48,
-    borderRadius: radius.full,
-    borderWidth: size.hairline,
-    borderColor: color.hairline,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  secondaryLabel: {
-    ...type.body,
-    color: color.ink,
-  },
-  primary: {
-    flex: 1,
-    minHeight: 48,
-    borderRadius: radius.full,
-    backgroundColor: color.ink,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  primaryLabel: {
-    ...type.body,
-    color: color.bg,
-    fontWeight: '600',
-  },
-  privacy: {
-    ...type.meta,
-    fontSize: 12,
-    color: color.ink3,
-    marginTop: space.xxl,
-    lineHeight: 18,
-  },
-});
+const useStyles = makeThemedStyles((c: Palette) =>
+  StyleSheet.create({
+    header: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      minHeight: size.touch,
+    },
+    headerSpacer: {
+      width: 56,
+    },
+    back: {
+      ...type.meta,
+      color: c.ink2,
+      width: 56,
+    },
+    label: {
+      ...type.label,
+      color: c.ink3,
+    },
+    content: {
+      paddingBottom: space.huge,
+    },
+    title: {
+      ...type.title,
+      color: c.ink,
+      marginTop: space.xl,
+    },
+    body: {
+      ...type.meta,
+      color: c.ink2,
+      marginTop: space.sm,
+      lineHeight: 21,
+    },
+    input: {
+      ...type.body,
+      marginTop: space.xl,
+      minHeight: 52,
+      borderRadius: radius.md,
+      backgroundColor: c.sunken,
+      paddingHorizontal: space.lg,
+      color: c.ink,
+    },
+    examples: {
+      flexDirection: 'row',
+      flexWrap: 'wrap',
+      gap: space.sm,
+      marginTop: space.md,
+    },
+    example: {
+      paddingHorizontal: space.md,
+      paddingVertical: space.sm,
+      borderRadius: radius.full,
+      borderWidth: size.hairline,
+      borderColor: c.hairline,
+    },
+    exampleText: {
+      ...type.meta,
+      fontSize: 13,
+      color: c.ink2,
+    },
+    analyze: {
+      marginTop: space.lg,
+      minHeight: 48,
+      borderRadius: radius.full,
+      backgroundColor: c.ink,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    analyzeDisabled: {
+      backgroundColor: c.sunken,
+    },
+    analyzeLabel: {
+      ...type.body,
+      color: c.bg,
+      fontWeight: '600',
+    },
+    analyzeLabelDisabled: {
+      color: c.ink3,
+    },
+    pressed: {
+      opacity: 0.7,
+    },
+    error: {
+      ...type.meta,
+      color: c.danger,
+      marginTop: space.lg,
+      lineHeight: 20,
+    },
+    card: {
+      marginTop: space.xl,
+      borderTopWidth: size.hairline,
+      borderTopColor: c.hairline,
+      paddingTop: space.lg,
+    },
+    cardTop: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+    },
+    cardLabel: {
+      ...type.label,
+      color: c.ink3,
+    },
+    cardDate: {
+      ...type.meta,
+      fontSize: 12,
+      color: c.ink3,
+    },
+    cardAmount: {
+      fontSize: 40,
+      lineHeight: 48,
+      marginTop: space.sm,
+    },
+    cardMeta: {
+      ...type.meta,
+      color: c.ink2,
+      marginTop: space.xs,
+    },
+    actions: {
+      flexDirection: 'row',
+      gap: space.md,
+      marginTop: space.xl,
+    },
+    secondary: {
+      flex: 1,
+      minHeight: 48,
+      borderRadius: radius.full,
+      borderWidth: size.hairline,
+      borderColor: c.hairline,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    secondaryLabel: {
+      ...type.body,
+      color: c.ink,
+    },
+    primary: {
+      flex: 1,
+      minHeight: 48,
+      borderRadius: radius.full,
+      backgroundColor: c.ink,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    primaryLabel: {
+      ...type.body,
+      color: c.bg,
+      fontWeight: '600',
+    },
+    privacy: {
+      ...type.meta,
+      fontSize: 12,
+      color: c.ink3,
+      marginTop: space.xxl,
+      lineHeight: 18,
+    },
+  }),
+);

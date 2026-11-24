@@ -7,6 +7,7 @@
  */
 
 import { isISODate } from './date';
+import type { ThemeMode } from '../theme/tokens';
 
 export const BACKUP_APP = 'budgeting';
 export const BACKUP_VERSION = 1;
@@ -18,6 +19,7 @@ export interface BackupSettings {
   weeklyBudget: number;
   weekStart: number;
   debtFloor: number | null;
+  themeMode: ThemeMode;
 }
 
 export interface BackupTransaction {
@@ -94,6 +96,10 @@ export function parseBackup(input: string): BackupFile {
     fail('Hari mulai minggu harus 0–6.');
   }
 
+  const themeRaw = settings.themeMode;
+  const themeMode: ThemeMode =
+    themeRaw === 'light' || themeRaw === 'dark' || themeRaw === 'system' ? themeRaw : 'system';
+
   let debtFloor: number | null = null;
   if (settings.debtFloor !== null && settings.debtFloor !== undefined) {
     if (typeof settings.debtFloor !== 'number' || !Number.isFinite(settings.debtFloor)) {
@@ -144,7 +150,7 @@ export function parseBackup(input: string): BackupFile {
     app: BACKUP_APP,
     version: BACKUP_VERSION,
     exportedAt: typeof raw.exportedAt === 'string' ? raw.exportedAt : new Date().toISOString(),
-    settings: { dailyTarget, weeklyBudget, weekStart, debtFloor },
+    settings: { dailyTarget, weeklyBudget, weekStart, debtFloor, themeMode },
     categories,
     transactions,
   };

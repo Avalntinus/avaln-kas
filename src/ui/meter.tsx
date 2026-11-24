@@ -1,6 +1,7 @@
 import { View } from 'react-native';
 
-import { color, size, zoneColor, type MeterZone } from '@/theme/tokens';
+import { useTheme } from '@/theme/theme';
+import { size, zoneColor, type MeterZone } from '@/theme/tokens';
 
 export type MeterProps = {
   /** 0..1 (di-clamp) */
@@ -14,6 +15,7 @@ export type MeterProps = {
  * Diadaptasi: tanpa gradient, tanpa label di dalam bar, ambang tetap 75% / 90%.
  */
 export function Meter({ ratio, zone, height = size.meter }: MeterProps) {
+  const { colors } = useTheme();
   const safe = Number.isFinite(ratio) ? ratio : 1;
   const percent = Math.max(0, Math.min(1, safe)) * 100;
 
@@ -24,11 +26,11 @@ export function Meter({ ratio, zone, height = size.meter }: MeterProps) {
       style={{
         height,
         borderRadius: height / 2,
-        backgroundColor: color.hairline,
+        backgroundColor: colors.hairline,
         overflow: 'hidden',
       }}
     >
-      <View style={{ height, width: `${percent}%`, backgroundColor: zoneColor(zone) }} />
+      <View style={{ height, width: `${percent}%`, backgroundColor: zoneColor(zone, colors) }} />
     </View>
   );
 }

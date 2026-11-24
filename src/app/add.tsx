@@ -13,7 +13,8 @@ import {
 } from '@/db/repo';
 import { addDays, formatDayMonth, todayISO, type ISODate } from '@/lib/date';
 import { digitsToAmount, formatRp, normalizeNote } from '@/lib/money';
-import { color, radius, size, space, type } from '@/theme/tokens';
+import { makeThemedStyles, useTheme } from '@/theme/theme';
+import { radius, size, space, type, type Palette } from '@/theme/tokens';
 import { MoneyPad } from '@/ui/money-pad';
 
 const MAX_DIGITS = 12;
@@ -24,6 +25,8 @@ function nowMs(): number {
 }
 
 export default function AddScreen() {
+  const styles = useStyles();
+  const { colors } = useTheme();
   const params = useLocalSearchParams<{
     id?: string;
     amount?: string;
@@ -245,7 +248,7 @@ export default function AddScreen() {
             value={note}
             onChangeText={setNote}
             placeholder={isIncome ? 'Sumber (gaji, bonus, …)' : 'Catatan (opsional)'}
-            placeholderTextColor={color.ink3}
+            placeholderTextColor={colors.ink3}
             style={styles.note}
             maxLength={120}
             returnKeyType="done"
@@ -258,153 +261,155 @@ export default function AddScreen() {
   );
 }
 
-const styles = StyleSheet.create({
-  safe: {
-    flex: 1,
-    backgroundColor: color.bg,
-  },
-  container: {
-    flex: 1,
-    width: '100%',
-    maxWidth: 520,
-    alignSelf: 'center',
-    paddingHorizontal: space.xl,
-    paddingTop: space.lg,
-    paddingBottom: space.md,
-  },
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    minHeight: size.touch,
-  },
-  label: {
-    ...type.label,
-    color: color.ink3,
-  },
-  cancel: {
-    ...type.meta,
-    color: color.ink2,
-  },
-  save: {
-    ...type.meta,
-    color: color.ink,
-    fontWeight: '600',
-  },
-  saveDisabled: {
-    color: color.ink3,
-  },
-  segment: {
-    flexDirection: 'row',
-    marginTop: space.md,
-    padding: 2,
-    borderRadius: radius.full,
-    backgroundColor: color.sunken,
-  },
-  segmentItem: {
-    flex: 1,
-    minHeight: 36,
-    borderRadius: radius.full,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  segmentItemSelected: {
-    backgroundColor: color.surface,
-  },
-  segmentText: {
-    ...type.meta,
-    color: color.ink2,
-  },
-  segmentTextSelected: {
-    color: color.ink,
-    fontWeight: '600',
-  },
-  dateRow: {
-    marginTop: space.md,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-  },
-  dateChips: {
-    flexDirection: 'row',
-    gap: space.sm,
-  },
-  dateChip: {
-    paddingHorizontal: space.md,
-    paddingVertical: 6,
-    borderRadius: radius.full,
-    borderWidth: size.hairline,
-    borderColor: color.hairline,
-  },
-  dateChipSelected: {
-    backgroundColor: color.sunken,
-    borderColor: color.ink3,
-  },
-  dateChipText: {
-    ...type.meta,
-    fontSize: 13,
-    color: color.ink2,
-  },
-  dateChipTextSelected: {
-    color: color.ink,
-    fontWeight: '600',
-  },
-  form: {
-    flex: 1,
-    justifyContent: 'center',
-  },
-  amountBlock: {
-    alignItems: 'center',
-  },
-  amount: {
-    ...type.display,
-    fontSize: 40,
-    lineHeight: 48,
-    color: color.ink,
-    textAlign: 'center',
-  },
-  amountIncome: {
-    color: color.accent,
-  },
-  incomeHint: {
-    ...type.meta,
-    color: color.ink3,
-    marginTop: space.md,
-    marginBottom: space.sm,
-  },
-  chipsRow: {
-    flexGrow: 0,
-    flexShrink: 0,
-  },
-  chips: {
-    gap: space.sm,
-    paddingVertical: space.lg,
-    alignItems: 'center',
-  },
-  chip: {
-    paddingHorizontal: space.md,
-    paddingVertical: space.sm,
-    borderRadius: radius.full,
-    borderWidth: size.hairline,
-    borderColor: color.hairline,
-  },
-  chipSelected: {
-    backgroundColor: color.ink,
-    borderColor: color.ink,
-  },
-  chipText: {
-    ...type.meta,
-    color: color.ink2,
-  },
-  chipTextSelected: {
-    color: color.bg,
-  },
-  note: {
-    ...type.body,
-    backgroundColor: color.sunken,
-    borderRadius: radius.md,
-    paddingHorizontal: space.lg,
-    minHeight: size.touch,
-    color: color.ink,
-  },
-});
+const useStyles = makeThemedStyles((c: Palette) =>
+  StyleSheet.create({
+    safe: {
+      flex: 1,
+      backgroundColor: c.bg,
+    },
+    container: {
+      flex: 1,
+      width: '100%',
+      maxWidth: 520,
+      alignSelf: 'center',
+      paddingHorizontal: space.xl,
+      paddingTop: space.lg,
+      paddingBottom: space.md,
+    },
+    header: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      minHeight: size.touch,
+    },
+    label: {
+      ...type.label,
+      color: c.ink3,
+    },
+    cancel: {
+      ...type.meta,
+      color: c.ink2,
+    },
+    save: {
+      ...type.meta,
+      color: c.ink,
+      fontWeight: '600',
+    },
+    saveDisabled: {
+      color: c.ink3,
+    },
+    segment: {
+      flexDirection: 'row',
+      marginTop: space.md,
+      padding: 2,
+      borderRadius: radius.full,
+      backgroundColor: c.sunken,
+    },
+    segmentItem: {
+      flex: 1,
+      minHeight: 36,
+      borderRadius: radius.full,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    segmentItemSelected: {
+      backgroundColor: c.surface,
+    },
+    segmentText: {
+      ...type.meta,
+      color: c.ink2,
+    },
+    segmentTextSelected: {
+      color: c.ink,
+      fontWeight: '600',
+    },
+    dateRow: {
+      marginTop: space.md,
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+    },
+    dateChips: {
+      flexDirection: 'row',
+      gap: space.sm,
+    },
+    dateChip: {
+      paddingHorizontal: space.md,
+      paddingVertical: 6,
+      borderRadius: radius.full,
+      borderWidth: size.hairline,
+      borderColor: c.hairline,
+    },
+    dateChipSelected: {
+      backgroundColor: c.sunken,
+      borderColor: c.ink3,
+    },
+    dateChipText: {
+      ...type.meta,
+      fontSize: 13,
+      color: c.ink2,
+    },
+    dateChipTextSelected: {
+      color: c.ink,
+      fontWeight: '600',
+    },
+    form: {
+      flex: 1,
+      justifyContent: 'center',
+    },
+    amountBlock: {
+      alignItems: 'center',
+    },
+    amount: {
+      ...type.display,
+      fontSize: 40,
+      lineHeight: 48,
+      color: c.ink,
+      textAlign: 'center',
+    },
+    amountIncome: {
+      color: c.accent,
+    },
+    incomeHint: {
+      ...type.meta,
+      color: c.ink3,
+      marginTop: space.md,
+      marginBottom: space.sm,
+    },
+    chipsRow: {
+      flexGrow: 0,
+      flexShrink: 0,
+    },
+    chips: {
+      gap: space.sm,
+      paddingVertical: space.lg,
+      alignItems: 'center',
+    },
+    chip: {
+      paddingHorizontal: space.md,
+      paddingVertical: space.sm,
+      borderRadius: radius.full,
+      borderWidth: size.hairline,
+      borderColor: c.hairline,
+    },
+    chipSelected: {
+      backgroundColor: c.ink,
+      borderColor: c.ink,
+    },
+    chipText: {
+      ...type.meta,
+      color: c.ink2,
+    },
+    chipTextSelected: {
+      color: c.bg,
+    },
+    note: {
+      ...type.body,
+      backgroundColor: c.sunken,
+      borderRadius: radius.md,
+      paddingHorizontal: space.lg,
+      minHeight: size.touch,
+      color: c.ink,
+    },
+  }),
+);

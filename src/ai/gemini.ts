@@ -8,7 +8,10 @@ const ENDPOINT = 'https://generativelanguage.googleapis.com/v1beta';
 const TIMEOUT_MS = 8000;
 
 export class AiError extends Error {
-  constructor(message: string, readonly status?: number) {
+  constructor(
+    message: string,
+    readonly status?: number,
+  ) {
     super(message);
     this.name = 'AiError';
   }
@@ -55,7 +58,10 @@ const SCHEMA = {
   required: ['kind', 'amount', 'note', 'date'],
 };
 
-function buildPrompt(input: string, ctx: { today: ISODate; categories: readonly QuickCategory[] }): string {
+function buildPrompt(
+  input: string,
+  ctx: { today: ISODate; categories: readonly QuickCategory[] },
+): string {
   const names = ctx.categories.map((c) => c.name).join(', ');
   return [
     'Ubah kalimat pengeluaran/pemasukan berbahasa Indonesia menjadi JSON.',

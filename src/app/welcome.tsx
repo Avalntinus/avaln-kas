@@ -5,7 +5,8 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { completeOnboarding } from '@/db/repo';
 import { digitsToAmount, formatRp } from '@/lib/money';
-import { color, radius, size, space, type } from '@/theme/tokens';
+import { makeThemedStyles } from '@/theme/theme';
+import { radius, size, space, type, type Palette } from '@/theme/tokens';
 import { MoneyPad } from '@/ui/money-pad';
 
 const MAX_DIGITS = 10;
@@ -20,6 +21,7 @@ const WEEKDAYS = [
  * Tanpa ini, angka di Home hanya seed bawaan dan terasa asing.
  */
 export default function WelcomeScreen() {
+  const styles = useStyles();
   const [digits, setDigits] = useState('210000');
   const [weekStart, setWeekStart] = useState<number>(1);
   const [saving, setSaving] = useState(false);
@@ -106,7 +108,9 @@ export default function WelcomeScreen() {
             pressed && styles.startPressed,
           ]}
         >
-          <Text style={styles.startLabel}>{saving ? 'Menyimpan…' : 'Mulai'}</Text>
+          <Text style={[styles.startLabel, !canStart && styles.startLabelDisabled]}>
+            {saving ? 'Menyimpan…' : 'Mulai'}
+          </Text>
         </Pressable>
 
         <Text style={styles.footnote}>Bisa diubah kapan saja di Setelan.</Text>
@@ -119,111 +123,116 @@ export default function WelcomeScreen() {
   );
 }
 
-const styles = StyleSheet.create({
-  safe: {
-    flex: 1,
-    backgroundColor: color.bg,
-  },
-  container: {
-    flex: 1,
-    width: '100%',
-    maxWidth: 520,
-    alignSelf: 'center',
-    paddingHorizontal: space.xl,
-    paddingTop: space.xl,
-    paddingBottom: space.md,
-  },
-  brand: {
-    ...type.label,
-    color: color.accent,
-  },
-  title: {
-    ...type.title,
-    color: color.ink,
-    marginTop: space.lg,
-  },
-  body: {
-    ...type.meta,
-    color: color.ink2,
-    marginTop: space.sm,
-    lineHeight: 21,
-  },
-  amountBlock: {
-    marginTop: space.xl,
-    alignItems: 'center',
-  },
-  amount: {
-    ...type.display,
-    fontSize: 40,
-    lineHeight: 48,
-    color: color.ink,
-    textAlign: 'center',
-  },
-  hint: {
-    ...type.meta,
-    color: color.ink3,
-    marginTop: space.xs,
-  },
-  weekRow: {
-    marginTop: space.lg,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-  },
-  label: {
-    ...type.label,
-    color: color.ink3,
-  },
-  chips: {
-    flexDirection: 'row',
-    gap: space.sm,
-  },
-  chip: {
-    paddingHorizontal: space.lg,
-    paddingVertical: space.sm,
-    borderRadius: radius.full,
-    borderWidth: size.hairline,
-    borderColor: color.hairline,
-  },
-  chipSelected: {
-    backgroundColor: color.ink,
-    borderColor: color.ink,
-  },
-  chipText: {
-    ...type.meta,
-    color: color.ink2,
-  },
-  chipTextSelected: {
-    color: color.bg,
-  },
-  start: {
-    marginTop: space.lg,
-    minHeight: 48,
-    borderRadius: radius.full,
-    backgroundColor: color.ink,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  startDisabled: {
-    backgroundColor: color.hairline,
-  },
-  startPressed: {
-    opacity: 0.8,
-  },
-  startLabel: {
-    ...type.body,
-    color: color.bg,
-    fontWeight: '600',
-  },
-  footnote: {
-    ...type.meta,
-    fontSize: 12,
-    color: color.ink3,
-    textAlign: 'center',
-    marginTop: space.sm,
-  },
-  spacer: {
-    flex: 1,
-    minHeight: space.md,
-  },
-});
+const useStyles = makeThemedStyles((c: Palette) =>
+  StyleSheet.create({
+    safe: {
+      flex: 1,
+      backgroundColor: c.bg,
+    },
+    container: {
+      flex: 1,
+      width: '100%',
+      maxWidth: 520,
+      alignSelf: 'center',
+      paddingHorizontal: space.xl,
+      paddingTop: space.xl,
+      paddingBottom: space.md,
+    },
+    brand: {
+      ...type.label,
+      color: c.accent,
+    },
+    title: {
+      ...type.title,
+      color: c.ink,
+      marginTop: space.lg,
+    },
+    body: {
+      ...type.meta,
+      color: c.ink2,
+      marginTop: space.sm,
+      lineHeight: 21,
+    },
+    amountBlock: {
+      marginTop: space.xl,
+      alignItems: 'center',
+    },
+    amount: {
+      ...type.display,
+      fontSize: 40,
+      lineHeight: 48,
+      color: c.ink,
+      textAlign: 'center',
+    },
+    hint: {
+      ...type.meta,
+      color: c.ink3,
+      marginTop: space.xs,
+    },
+    weekRow: {
+      marginTop: space.lg,
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+    },
+    label: {
+      ...type.label,
+      color: c.ink3,
+    },
+    chips: {
+      flexDirection: 'row',
+      gap: space.sm,
+    },
+    chip: {
+      paddingHorizontal: space.lg,
+      paddingVertical: space.sm,
+      borderRadius: radius.full,
+      borderWidth: size.hairline,
+      borderColor: c.hairline,
+    },
+    chipSelected: {
+      backgroundColor: c.ink,
+      borderColor: c.ink,
+    },
+    chipText: {
+      ...type.meta,
+      color: c.ink2,
+    },
+    chipTextSelected: {
+      color: c.bg,
+    },
+    start: {
+      marginTop: space.lg,
+      minHeight: 48,
+      borderRadius: radius.full,
+      backgroundColor: c.ink,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    startDisabled: {
+      backgroundColor: c.sunken,
+    },
+    startPressed: {
+      opacity: 0.8,
+    },
+    startLabel: {
+      ...type.body,
+      color: c.bg,
+      fontWeight: '600',
+    },
+    startLabelDisabled: {
+      color: c.ink3,
+    },
+    footnote: {
+      ...type.meta,
+      fontSize: 12,
+      color: c.ink3,
+      textAlign: 'center',
+      marginTop: space.sm,
+    },
+    spacer: {
+      flex: 1,
+      minHeight: space.md,
+    },
+  }),
+);

@@ -29,9 +29,10 @@ describe('validateAiQuick', () => {
   });
 
   it('menerjemahkan kemarin', () => {
-    expect(validateAiQuick({ kind: 'income', amount: 500000, note: 'gaji', date: 'yesterday' }, ctx)?.date).toBe(
-      '2026-11-22',
-    );
+    expect(
+      validateAiQuick({ kind: 'income', amount: 500000, note: 'gaji', date: 'yesterday' }, ctx)
+        ?.date,
+    ).toBe('2026-11-22');
   });
 
   it('menerima tanggal ISO langsung', () => {
@@ -44,7 +45,9 @@ describe('validateAiQuick', () => {
     expect(validateAiQuick({ kind: 'transfer', amount: 1000, note: '' }, ctx)).toBeNull();
     expect(validateAiQuick({ kind: 'expense', amount: 0, note: '' }, ctx)).toBeNull();
     expect(validateAiQuick({ kind: 'expense', amount: -5, note: '' }, ctx)).toBeNull();
-    expect(validateAiQuick({ kind: 'expense', amount: 1000, note: '', date: '23-11-2026' }, ctx)).toBeNull();
+    expect(
+      validateAiQuick({ kind: 'expense', amount: 1000, note: '', date: '23-11-2026' }, ctx),
+    ).toBeNull();
     expect(validateAiQuick('bukan objek', ctx)).toBeNull();
     expect(validateAiQuick(null, ctx)).toBeNull();
   });

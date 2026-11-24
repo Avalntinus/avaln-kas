@@ -15,12 +15,14 @@ import {
   type WeekStartDay,
 } from '@/logic/rollover';
 import { closePastWeeks } from '@/logic/weeks';
-import { color, size, space, type } from '@/theme/tokens';
+import { makeThemedStyles } from '@/theme/theme';
+import { size, space, type, type Palette } from '@/theme/tokens';
 import { AmountText } from '@/ui/amount-text';
 import { Meter } from '@/ui/meter';
 import { Screen } from '@/ui/screen';
 
 export default function WeekScreen() {
+  const styles = useStyles();
   const [week, setWeek] = useState<WeekComputation | null>(null);
   const [today, setToday] = useState<ISODate>(todayISO());
 
@@ -154,6 +156,7 @@ export default function WeekScreen() {
 }
 
 function DayRow({ day, today }: { day: DayPoint; today: ISODate }) {
+  const styles = useStyles();
   const isToday = day.date === today;
   const isFuture = day.date > today;
   const usage = dayUsage(day);
@@ -203,6 +206,7 @@ function Fact({
   value: string;
   tone?: 'muted' | 'accent' | 'danger';
 }) {
+  const styles = useStyles();
   return (
     <View style={styles.factRow}>
       <Text style={styles.muted}>{label}</Text>
@@ -219,142 +223,144 @@ function Fact({
   );
 }
 
-const styles = StyleSheet.create({
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    minHeight: size.touch,
-  },
-  headerSpacer: {
-    width: 56,
-  },
-  back: {
-    ...type.meta,
-    color: color.ink2,
-    width: 56,
-  },
-  label: {
-    ...type.label,
-    color: color.ink3,
-  },
-  content: {
-    paddingBottom: space.huge,
-  },
-  range: {
-    ...type.meta,
-    color: color.ink3,
-    marginTop: space.md,
-  },
-  heroLabel: {
-    marginTop: space.lg,
-  },
-  heroAmount: {
-    fontSize: 40,
-    lineHeight: 46,
-    marginTop: space.xs,
-  },
-  subline: {
-    ...type.meta,
-    color: color.ink2,
-    marginTop: space.xs,
-  },
-  meterWrap: {
-    marginTop: space.md,
-  },
-  facts: {
-    marginTop: space.md,
-    gap: 2,
-  },
-  factRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-  },
-  factValue: {
-    ...type.meta,
-    color: color.ink,
-  },
-  floorNote: {
-    ...type.meta,
-    color: color.warn,
-    marginTop: space.md,
-  },
-  divider: {
-    height: size.hairline,
-    backgroundColor: color.hairline,
-    marginTop: space.lg,
-  },
-  daysHeader: {
-    marginTop: space.md,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-  },
-  caption: {
-    ...type.meta,
-    fontSize: 12,
-    color: color.ink3,
-  },
-  day: {
-    marginTop: space.md,
-  },
-  dayToday: {
-    borderLeftWidth: 2,
-    borderLeftColor: color.accent,
-    paddingLeft: space.md,
-    marginLeft: -space.md,
-  },
-  dayTop: {
-    flexDirection: 'row',
-    alignItems: 'baseline',
-    justifyContent: 'space-between',
-    gap: space.sm,
-  },
-  dayLabel: {
-    ...type.meta,
-    color: color.ink2,
-  },
-  dayLabelToday: {
-    color: color.ink,
-    fontWeight: '600',
-  },
-  dayAmount: {
-    ...type.meta,
-    color: color.ink,
-  },
-  dayBase: {
-    color: color.ink3,
-  },
-  dayBottom: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginTop: space.xs,
-    minHeight: 18,
-  },
-  dayMeta: {
-    ...type.meta,
-    fontSize: 12,
-    color: color.ink3,
-  },
-  dayPositive: {
-    color: color.accent,
-  },
-  dayNegative: {
-    color: color.danger,
-  },
-  footerRow: {
-    marginTop: space.lg,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-  },
-  footerLabel: {
-    ...type.meta,
-    color: color.ink2,
-  },
-  muted: {
-    ...type.meta,
-    color: color.ink2,
-  },
-});
+const useStyles = makeThemedStyles((c: Palette) =>
+  StyleSheet.create({
+    header: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      minHeight: size.touch,
+    },
+    headerSpacer: {
+      width: 56,
+    },
+    back: {
+      ...type.meta,
+      color: c.ink2,
+      width: 56,
+    },
+    label: {
+      ...type.label,
+      color: c.ink3,
+    },
+    content: {
+      paddingBottom: space.huge,
+    },
+    range: {
+      ...type.meta,
+      color: c.ink3,
+      marginTop: space.md,
+    },
+    heroLabel: {
+      marginTop: space.lg,
+    },
+    heroAmount: {
+      fontSize: 40,
+      lineHeight: 46,
+      marginTop: space.xs,
+    },
+    subline: {
+      ...type.meta,
+      color: c.ink2,
+      marginTop: space.xs,
+    },
+    meterWrap: {
+      marginTop: space.md,
+    },
+    facts: {
+      marginTop: space.md,
+      gap: 2,
+    },
+    factRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+    },
+    factValue: {
+      ...type.meta,
+      color: c.ink,
+    },
+    floorNote: {
+      ...type.meta,
+      color: c.warn,
+      marginTop: space.md,
+    },
+    divider: {
+      height: size.hairline,
+      backgroundColor: c.hairline,
+      marginTop: space.lg,
+    },
+    daysHeader: {
+      marginTop: space.md,
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+    },
+    caption: {
+      ...type.meta,
+      fontSize: 12,
+      color: c.ink3,
+    },
+    day: {
+      marginTop: space.md,
+    },
+    dayToday: {
+      borderLeftWidth: 2,
+      borderLeftColor: c.accent,
+      paddingLeft: space.md,
+      marginLeft: -space.md,
+    },
+    dayTop: {
+      flexDirection: 'row',
+      alignItems: 'baseline',
+      justifyContent: 'space-between',
+      gap: space.sm,
+    },
+    dayLabel: {
+      ...type.meta,
+      color: c.ink2,
+    },
+    dayLabelToday: {
+      color: c.ink,
+      fontWeight: '600',
+    },
+    dayAmount: {
+      ...type.meta,
+      color: c.ink,
+    },
+    dayBase: {
+      color: c.ink3,
+    },
+    dayBottom: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      marginTop: space.xs,
+      minHeight: 18,
+    },
+    dayMeta: {
+      ...type.meta,
+      fontSize: 12,
+      color: c.ink3,
+    },
+    dayPositive: {
+      color: c.accent,
+    },
+    dayNegative: {
+      color: c.danger,
+    },
+    footerRow: {
+      marginTop: space.lg,
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+    },
+    footerLabel: {
+      ...type.meta,
+      color: c.ink2,
+    },
+    muted: {
+      ...type.meta,
+      color: c.ink2,
+    },
+  }),
+);

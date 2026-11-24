@@ -19,7 +19,8 @@ import {
 } from '@/lib/date';
 import { transactionLabel } from '@/lib/labels';
 import { formatRp } from '@/lib/money';
-import { color, size, space, type } from '@/theme/tokens';
+import { makeThemedStyles } from '@/theme/theme';
+import { size, space, type, type Palette } from '@/theme/tokens';
 import { AmountText } from '@/ui/amount-text';
 
 type DayGroup = { date: ISODate; expense: number; income: number; items: Transaction[] };
@@ -28,6 +29,7 @@ type WeekGroup = { weekStart: ISODate; expense: number; income: number; days: Da
 const LOOKBACK_DAYS = 70;
 
 export default function HistoryScreen() {
+  const styles = useStyles();
   const [groups, setGroups] = useState<WeekGroup[]>([]);
   const [loading, setLoading] = useState(true);
   const [tick, setTick] = useState(0);
@@ -186,85 +188,87 @@ export default function HistoryScreen() {
   );
 }
 
-const styles = StyleSheet.create({
-  safe: {
-    flex: 1,
-    backgroundColor: color.bg,
-  },
-  container: {
-    flex: 1,
-    width: '100%',
-    maxWidth: 520,
-    alignSelf: 'center',
-    paddingHorizontal: space.xl,
-    paddingTop: space.lg,
-  },
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    minHeight: size.touch,
-  },
-  headerSpacer: {
-    width: 56,
-  },
-  label: {
-    ...type.label,
-    color: color.ink3,
-  },
-  back: {
-    ...type.meta,
-    color: color.ink2,
-    width: 56,
-  },
-  empty: {
-    ...type.meta,
-    color: color.ink3,
-    marginTop: space.xxl,
-  },
-  list: {
-    paddingBottom: space.huge,
-  },
-  weekHeader: {
-    marginTop: space.xxl,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingBottom: space.sm,
-    borderBottomWidth: size.hairline,
-    borderBottomColor: color.hairline,
-  },
-  dayHeader: {
-    marginTop: space.lg,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-  },
-  dayLabel: {
-    ...type.meta,
-    color: color.ink2,
-  },
-  amounts: {
-    flexDirection: 'row',
-    gap: space.md,
-  },
-  row: {
-    minHeight: size.touch,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    gap: space.lg,
-  },
-  rowBorder: {
-    borderTopWidth: size.hairline,
-    borderTopColor: color.hairline,
-  },
-  rowPressed: {
-    opacity: 0.5,
-  },
-  rowNote: {
-    ...type.body,
-    color: color.ink,
-    flexShrink: 1,
-  },
-});
+const useStyles = makeThemedStyles((c: Palette) =>
+  StyleSheet.create({
+    safe: {
+      flex: 1,
+      backgroundColor: c.bg,
+    },
+    container: {
+      flex: 1,
+      width: '100%',
+      maxWidth: 520,
+      alignSelf: 'center',
+      paddingHorizontal: space.xl,
+      paddingTop: space.lg,
+    },
+    header: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      minHeight: size.touch,
+    },
+    headerSpacer: {
+      width: 56,
+    },
+    label: {
+      ...type.label,
+      color: c.ink3,
+    },
+    back: {
+      ...type.meta,
+      color: c.ink2,
+      width: 56,
+    },
+    empty: {
+      ...type.meta,
+      color: c.ink3,
+      marginTop: space.xxl,
+    },
+    list: {
+      paddingBottom: space.huge,
+    },
+    weekHeader: {
+      marginTop: space.xxl,
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      paddingBottom: space.sm,
+      borderBottomWidth: size.hairline,
+      borderBottomColor: c.hairline,
+    },
+    dayHeader: {
+      marginTop: space.lg,
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+    },
+    dayLabel: {
+      ...type.meta,
+      color: c.ink2,
+    },
+    amounts: {
+      flexDirection: 'row',
+      gap: space.md,
+    },
+    row: {
+      minHeight: size.touch,
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      gap: space.lg,
+    },
+    rowBorder: {
+      borderTopWidth: size.hairline,
+      borderTopColor: c.hairline,
+    },
+    rowPressed: {
+      opacity: 0.5,
+    },
+    rowNote: {
+      ...type.body,
+      color: c.ink,
+      flexShrink: 1,
+    },
+  }),
+);

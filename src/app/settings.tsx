@@ -5,7 +5,16 @@ import * as FileSystem from 'expo-file-system/legacy';
 import { router } from 'expo-router';
 import * as Sharing from 'expo-sharing';
 import { useCallback, useEffect, useState, type ReactNode } from 'react';
-import { Alert, Linking, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
+import {
+  Alert,
+  Linking,
+  Pressable,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TextInput,
+  View,
+} from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import {
@@ -25,8 +34,15 @@ import { parseBackup } from '@/lib/backup';
 import { todayISO } from '@/lib/date';
 import { formatRp, formatSignedRp } from '@/lib/money';
 import { splitDaily } from '@/logic/rollover';
-import { color, radius, size, space, type } from '@/theme/tokens';
+import { makeThemedStyles, useTheme } from '@/theme/theme';
+import { radius, size, space, type, type Palette } from '@/theme/tokens';
 import { MoneyEditor } from '@/ui/money-editor';
+
+const THEME_OPTIONS = [
+  { value: 'system' as const, label: 'Sistem' },
+  { value: 'light' as const, label: 'Terang' },
+  { value: 'dark' as const, label: 'Gelap' },
+];
 
 const WEEKDAYS = [
   { value: 1, label: 'Senin' },
@@ -45,6 +61,8 @@ function messageOf(error: unknown): string {
 }
 
 export default function SettingsScreen() {
+  const styles = useStyles();
+  const { colors, mode, setMode } = useTheme();
   const [settings, setSettings] = useState<Settings | null>(null);
   const [categories, setCategories] = useState<Category[]>([]);
   const [editor, setEditor] = useState<EditorKey | null>(null);
@@ -350,6 +368,30 @@ export default function SettingsScreen() {
             </Text>
           </Section>
 
+          <Section title="Tampilan">
+            <View style={styles.chips}>
+              {THEME_OPTIONS.map((option) => {
+                const selected = option.value === mode;
+                return (
+                  <Pressable
+                    key={option.value}
+                    accessibilityRole="button"
+                    accessibilityState={{ selected }}
+                    onPress={() => setMode(option.value)}
+                    style={[styles.chip, selected && styles.chipSelected]}
+                  >
+                    <Text style={[styles.chipText, selected && styles.chipTextSelected]}>
+                      {option.label}
+                    </Text>
+                  </Pressable>
+                );
+              })}
+            </View>
+            <Text style={styles.sectionHint}>
+              “Sistem” mengikuti mode gelap Android. Pilihan disimpan di perangkat ini.
+            </Text>
+          </Section>
+
           <Section title="Kategori">
             {categories.map((category, index) => (
               <View key={category.id} style={[styles.row, index > 0 && styles.rowBorder]}>
@@ -370,7 +412,7 @@ export default function SettingsScreen() {
                 value={newCategory}
                 onChangeText={setNewCategory}
                 placeholder="Kategori baru"
-                placeholderTextColor={color.ink3}
+                placeholderTextColor={colors.ink3}
                 style={styles.input}
                 maxLength={24}
                 returnKeyType="done"
@@ -421,7 +463,7 @@ export default function SettingsScreen() {
                   value={keyDraft}
                   onChangeText={setKeyDraft}
                   placeholder="Tempel API key Gemini"
-                  placeholderTextColor={color.ink3}
+                  placeholderTextColor={colors.ink3}
                   style={styles.input}
                   secureTextEntry
                   autoCapitalize="none"
@@ -516,6 +558,7 @@ export default function SettingsScreen() {
 }
 
 function Section({ title, children }: { title: string; children: ReactNode }) {
+  const styles = useStyles();
   return (
     <View style={styles.section}>
       <Text style={styles.label}>{title}</Text>
@@ -535,6 +578,7 @@ function Row({
   hint?: string;
   onPress?: () => void;
 }) {
+  const styles = useStyles();
   const content = (
     <View style={styles.row}>
       <View style={styles.rowMain}>
@@ -557,174 +601,176 @@ function Row({
   );
 }
 
-const styles = StyleSheet.create({
-  safe: {
-    flex: 1,
-    backgroundColor: color.bg,
-  },
-  container: {
-    flex: 1,
-    width: '100%',
-    maxWidth: 520,
-    alignSelf: 'center',
-    paddingHorizontal: space.xl,
-    paddingTop: space.lg,
-  },
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    minHeight: size.touch,
-  },
-  headerSpacer: {
-    width: 56,
-  },
-  back: {
-    ...type.meta,
-    color: color.ink2,
-    width: 56,
-  },
-  label: {
-    ...type.label,
-    color: color.ink3,
-  },
-  empty: {
-    ...type.meta,
-    color: color.ink3,
-    marginTop: space.xxl,
-  },
-  content: {
-    paddingBottom: space.huge,
-  },
-  section: {
-    marginTop: space.xxl,
-  },
-  sectionBody: {
-    marginTop: space.sm,
-  },
-  sectionHint: {
-    ...type.meta,
-    color: color.ink3,
-    marginTop: space.md,
-  },
-  row: {
-    minHeight: size.touch,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    gap: space.lg,
-  },
-  rowBorder: {
-    borderTopWidth: size.hairline,
-    borderTopColor: color.hairline,
-  },
-  rowMain: {
-    flexShrink: 1,
-  },
-  rowLabel: {
-    ...type.body,
-    color: color.ink,
-  },
-  rowHint: {
-    ...type.meta,
-    fontSize: 12,
-    color: color.ink3,
-    marginTop: 2,
-  },
-  rowValue: {
-    ...type.body,
-    color: color.ink2,
-    fontVariant: ['tabular-nums'],
-  },
-  rowValueAction: {
-    color: color.ink,
-    textDecorationLine: 'underline',
-    textDecorationColor: color.hairline,
-  },
-  pressed: {
-    opacity: 0.5,
-  },
-  chips: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: space.sm,
-  },
-  chip: {
-    paddingHorizontal: space.lg,
-    paddingVertical: space.sm,
-    borderRadius: radius.full,
-    borderWidth: size.hairline,
-    borderColor: color.hairline,
-  },
-  chipSelected: {
-    backgroundColor: color.ink,
-    borderColor: color.ink,
-  },
-  chipText: {
-    ...type.meta,
-    color: color.ink2,
-  },
-  chipTextSelected: {
-    color: color.bg,
-  },
-  remove: {
-    ...type.meta,
-    color: color.danger,
-  },
-  addRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: space.md,
-    marginTop: space.md,
-  },
-  input: {
-    ...type.body,
-    flex: 1,
-    backgroundColor: color.sunken,
-    borderRadius: radius.md,
-    paddingHorizontal: space.lg,
-    minHeight: size.touch,
-    color: color.ink,
-  },
-  addButton: {
-    ...type.meta,
-    color: color.ink,
-    fontWeight: '600',
-  },
-  addDisabled: {
-    color: color.ink3,
-  },
-  version: {
-    ...type.meta,
-    fontSize: 12,
-    color: color.ink3,
-    marginTop: space.xxl,
-  },
-  subAction: {
-    minHeight: size.touch,
-    justifyContent: 'center',
-  },
-  subActionText: {
-    ...type.meta,
-    color: color.ink2,
-  },
-  keyActions: {
-    flexDirection: 'row',
-    justifyContent: 'flex-end',
-    gap: space.lg,
-    marginTop: space.md,
-  },
-  link: {
-    ...type.meta,
-    color: color.accent,
-    marginTop: space.sm,
-  },
-  dangerRow: {
-    minHeight: size.touch,
-    justifyContent: 'center',
-  },
-  danger: {
-    ...type.body,
-    color: color.danger,
-  },
-});
+const useStyles = makeThemedStyles((c: Palette) =>
+  StyleSheet.create({
+    safe: {
+      flex: 1,
+      backgroundColor: c.bg,
+    },
+    container: {
+      flex: 1,
+      width: '100%',
+      maxWidth: 520,
+      alignSelf: 'center',
+      paddingHorizontal: space.xl,
+      paddingTop: space.lg,
+    },
+    header: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      minHeight: size.touch,
+    },
+    headerSpacer: {
+      width: 56,
+    },
+    back: {
+      ...type.meta,
+      color: c.ink2,
+      width: 56,
+    },
+    label: {
+      ...type.label,
+      color: c.ink3,
+    },
+    empty: {
+      ...type.meta,
+      color: c.ink3,
+      marginTop: space.xxl,
+    },
+    content: {
+      paddingBottom: space.huge,
+    },
+    section: {
+      marginTop: space.xxl,
+    },
+    sectionBody: {
+      marginTop: space.sm,
+    },
+    sectionHint: {
+      ...type.meta,
+      color: c.ink3,
+      marginTop: space.md,
+    },
+    row: {
+      minHeight: size.touch,
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      gap: space.lg,
+    },
+    rowBorder: {
+      borderTopWidth: size.hairline,
+      borderTopColor: c.hairline,
+    },
+    rowMain: {
+      flexShrink: 1,
+    },
+    rowLabel: {
+      ...type.body,
+      color: c.ink,
+    },
+    rowHint: {
+      ...type.meta,
+      fontSize: 12,
+      color: c.ink3,
+      marginTop: 2,
+    },
+    rowValue: {
+      ...type.body,
+      color: c.ink2,
+      fontVariant: ['tabular-nums'],
+    },
+    rowValueAction: {
+      color: c.ink,
+      textDecorationLine: 'underline',
+      textDecorationColor: c.hairline,
+    },
+    pressed: {
+      opacity: 0.5,
+    },
+    chips: {
+      flexDirection: 'row',
+      flexWrap: 'wrap',
+      gap: space.sm,
+    },
+    chip: {
+      paddingHorizontal: space.lg,
+      paddingVertical: space.sm,
+      borderRadius: radius.full,
+      borderWidth: size.hairline,
+      borderColor: c.hairline,
+    },
+    chipSelected: {
+      backgroundColor: c.ink,
+      borderColor: c.ink,
+    },
+    chipText: {
+      ...type.meta,
+      color: c.ink2,
+    },
+    chipTextSelected: {
+      color: c.bg,
+    },
+    remove: {
+      ...type.meta,
+      color: c.danger,
+    },
+    addRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: space.md,
+      marginTop: space.md,
+    },
+    input: {
+      ...type.body,
+      flex: 1,
+      backgroundColor: c.sunken,
+      borderRadius: radius.md,
+      paddingHorizontal: space.lg,
+      minHeight: size.touch,
+      color: c.ink,
+    },
+    addButton: {
+      ...type.meta,
+      color: c.ink,
+      fontWeight: '600',
+    },
+    addDisabled: {
+      color: c.ink3,
+    },
+    version: {
+      ...type.meta,
+      fontSize: 12,
+      color: c.ink3,
+      marginTop: space.xxl,
+    },
+    subAction: {
+      minHeight: size.touch,
+      justifyContent: 'center',
+    },
+    subActionText: {
+      ...type.meta,
+      color: c.ink2,
+    },
+    keyActions: {
+      flexDirection: 'row',
+      justifyContent: 'flex-end',
+      gap: space.lg,
+      marginTop: space.md,
+    },
+    link: {
+      ...type.meta,
+      color: c.accent,
+      marginTop: space.sm,
+    },
+    dangerRow: {
+      minHeight: size.touch,
+      justifyContent: 'center',
+    },
+    danger: {
+      ...type.body,
+      color: c.danger,
+    },
+  }),
+);

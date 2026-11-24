@@ -1,18 +1,11 @@
 import { Text, type TextProps } from 'react-native';
 
 import { formatRp, formatSignedRp } from '@/lib/money';
-import { color, type } from '@/theme/tokens';
+import { useTheme } from '@/theme/theme';
+import { type } from '@/theme/tokens';
 
 export type AmountTone = 'default' | 'muted' | 'accent' | 'warn' | 'danger';
 export type AmountVariant = 'display' | 'title' | 'body' | 'meta';
-
-const TONE_COLOR: Record<AmountTone, string> = {
-  default: color.ink,
-  muted: color.ink2,
-  accent: color.accent,
-  warn: color.warn,
-  danger: color.danger,
-};
 
 export type AmountTextProps = TextProps & {
   value: number;
@@ -31,8 +24,17 @@ export function AmountText({
   style,
   ...rest
 }: AmountTextProps) {
+  const { colors } = useTheme();
+  const toneColor = {
+    default: colors.ink,
+    muted: colors.ink2,
+    accent: colors.accent,
+    warn: colors.warn,
+    danger: colors.danger,
+  }[tone];
+
   return (
-    <Text {...rest} style={[type[variant], { color: TONE_COLOR[tone] }, style]}>
+    <Text {...rest} style={[type[variant], { color: toneColor }, style]}>
       {signed ? formatSignedRp(value) : formatRp(value)}
     </Text>
   );
