@@ -173,6 +173,10 @@ src/lib/
   backup.ts              validator file backup JSON (murni, ada test)
   labels.ts              transactionLabel(note → kategori → placeholder)
 
+src/features/update/                 in-app updater (GitHub Releases)
+  release.ts                           GET releases/latest, pilih APK per arsitektur
+  version.ts                           bandingkan versi (murni, ada test)
+  install.ts                           unduh APK + buka installer, bersihkan cache
 src/features/home/use-home-data.ts   query + closePastWeeks + refresh saat fokus
 src/features/savings/                hook tabungan + sweep otomatis
 src/features/widget/                 widget Android (data, komponen, task handler)
@@ -196,15 +200,15 @@ rolloverOut = clamp(pool − spentTotal, debtFloor, ∞)
 Contoh acuan (pool 210.000 → base 30.000; pengeluaran per hari
 22.000 / 45.000 / 20.000 / 40.000 / 10.000 / 50.000 / 0):
 
-| Hari | Available | Spent | Carry keluar |
-|---|---|---|---|
-| Sen | 30.000 | 22.000 | +8.000 |
-| Sel | 38.000 | 45.000 | −7.000 |
-| Rab | 23.000 | 20.000 | +3.000 |
-| Kam | 33.000 | 40.000 | −7.000 |
-| Jum | 23.000 | 10.000 | +13.000 |
-| Sab | 43.000 | 50.000 | −7.000 |
-| Min | 23.000 | 0 | **+23.000** |
+| Hari | Available | Spent  | Carry keluar |
+| ---- | --------- | ------ | ------------ |
+| Sen  | 30.000    | 22.000 | +8.000       |
+| Sel  | 38.000    | 45.000 | −7.000       |
+| Rab  | 23.000    | 20.000 | +3.000       |
+| Kam  | 33.000    | 40.000 | −7.000       |
+| Jum  | 23.000    | 10.000 | +13.000      |
+| Sab  | 43.000    | 50.000 | −7.000       |
+| Min  | 23.000    | 0      | **+23.000**  |
 
 Aturan lain:
 
@@ -266,11 +270,17 @@ const useStyles = makeThemedStyles((c: Palette) => StyleSheet.create({ ... }));
 Token (`src/theme/tokens.ts`):
 
 ```
-bg #FAFAF8 · surface #FFFFFF · sunken #F2F1ED
-ink #12100E · ink2 #6B6862 · ink3 #A8A49C · hairline #E8E6E1
-accent #1F6F5C · warn #B4761A · danger #A33A32
+light: bg #FAFAF8 · surface #FFFFFF · sunken #F2F1ED
+       ink #12100E · ink2 #6B6862 · ink3 #A8A49C · hairline #E8E6E1
+       accent #1F6F5C · warn #B4761A · danger #A33A32
+dark:  bg #0A0A0A · surface #121212 · sunken #1A1A1A
+       ink #F5F5F5 · ink2 #A6A6A6 · ink3 #707070 · hairline #262626
+       accent #4FA98F · warn #E0A94A · danger #E57373
 space 4/8/12/16/24/32/48 · radius 12/999 · meter 2px · touch 44
 ```
+
+Mode gelap memakai near-black netral (bukan hitam hangat). Widget varian gelap
+dan splash gelap di `app.json` wajib memakai nilai yang sama.
 
 - Tanpa shadow, gradient, border tebal, emoji, atau ikon dekoratif.
 - Pemisah = hairline. Fokus utama = angka besar (48pt, 40pt di layar <380dp).
@@ -324,6 +334,19 @@ space 4/8/12/16/24/32/48 · radius 12/999 · meter 2px · touch 44
   (`features/widget/support.ts`), bukan `Constants.executionEnvironment`
   (SDK 58 mengembalikan `bare`). Tambah widget lewat Setelan → Tampilan
   (`requestPinWidget`).
+- **In-app updater:** `api.github.com/repos/<owner>/<repo>/releases/latest` hanya
+  jalan karena repo publik. Rilis wajib berisi APK `arm64` dan `x86_64`; updater
+  memilih `x86_64` saat `Device.isDevice === false` (emulator) dan `arm64` di
+  perangkat nyata. Nama aset universal (tanpa akhiran arsitektur) dipakai sebagai
+  cadangan. Izin `REQUEST_INSTALL_PACKAGES` ada di `app.json`; Android tetap
+  menampilkan dialog Install (tidak bisa senyap), dan APK bertanda tangan lain
+  ditolak sistem sehingga keamanan bergantung pada keystore, bukan hash.
+- **Ukuran APK:** jangan membangun APK universal. `app-arm64-v8a` ±34 MB vs
+  universal ±102 MB. Butuh `python3 scripts/patch-android-release.py` setelah
+  prebuild.
+- **Daftar panjang pakai `FlatList`**, bukan `ScrollView` + `.map` (Riwayat 70
+  hari). Widget hanya di-refresh saat perlu; jangan menaruh query DB di
+  `render` widget.
 - Setelah menambah **route baru** atau mengubah file yang di-cache, Fast Refresh
   kadang tetap menyajikan bundle lama. Reload penuh: force-stop Expo Go lalu buka
   ulang deep link (atau dev menu → Reload).

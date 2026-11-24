@@ -1,5 +1,6 @@
 import { AiError, GEMINI_MODEL, testGeminiKey } from '@/ai/gemini';
 import { clearAiKey, getAiKey, setAiKey } from '@/ai/key';
+import * as Application from 'expo-application';
 import * as DocumentPicker from 'expo-document-picker';
 import * as FileSystem from 'expo-file-system/legacy';
 import { router } from 'expo-router';
@@ -31,6 +32,9 @@ import {
   type Category,
   type Settings,
 } from '@/db/repo';
+import { downloadAndInstall, openInstallPermission } from '@/features/update/install';
+import { fetchLatestRelease, type LatestRelease } from '@/features/update/release';
+import { isNewerVersion } from '@/features/update/version';
 import { pinBudgetWidget } from '@/features/widget/pin';
 import { parseBackup } from '@/lib/backup';
 import { todayISO } from '@/lib/date';
@@ -75,6 +79,12 @@ export default function SettingsScreen() {
   const [keyDraft, setKeyDraft] = useState('');
   const [aiMessage, setAiMessage] = useState<string | null>(null);
   const [savingsBalance, setSavingsBalance] = useState(0);
+  const [updatePhase, setUpdatePhase] = useState<
+    'idle' | 'checking' | 'latest' | 'available' | 'downloading' | 'opened' | 'error'
+  >('idle');
+  const [release, setRelease] = useState<LatestRelease | null>(null);
+  const [progress, setProgress] = useState(0);
+  const [updateMessage, setUpdateMessage] = useState<string | null>(null);
 
   const load = useCallback(async () => {
     const [nextSettings, nextCategories] = await Promise.all([getSettings(), listCategories()]);
@@ -192,6 +202,48 @@ export default function SettingsScreen() {
         },
       },
     ]);
+  }
+
+  async function handleCheckUpdate() {
+    if (updatePhase === 'checking' || updatePhase === 'downloading') return;
+
+    setUpdatePhase('checking');
+    setUpdateMessage(null);
+    setRelease(null);
+
+    try {
+      const latest = await fetchLatestRelease();
+      const current = Application.nativeApplicationVersion ?? '0.0.0';
+
+      if (!isNewerVersion(latest.version, current)) {
+        setUpdatePhase('latest');
+        setUpdateMessage(`Kamu sudah di versi terbaru (${current}).`);
+        return;
+      }
+
+      setRelease(latest);
+      setUpdatePhase('available');
+    } catch (error) {
+      setUpdatePhase('error');
+      setUpdateMessage(messageOf(error));
+    }
+  }
+
+  async function handleInstallUpdate() {
+    if (!release || updatePhase === 'downloading') return;
+
+    setUpdatePhase('downloading');
+    setProgress(0);
+    setUpdateMessage(null);
+
+    try {
+      await downloadAndInstall(release, setProgress);
+      setUpdatePhase('opened');
+      setUpdateMessage('Dialog install dibuka. Setujui untuk memperbarui.');
+    } catch (error) {
+      setUpdatePhase('error');
+      setUpdateMessage(messageOf(error));
+    }
   }
 
   async function handlePinWidget() {
@@ -455,6 +507,70 @@ export default function SettingsScreen() {
             </View>
           </Section>
 
+          <Section title="Pembaruan">
+            <Row
+              label="Versi terpasang"
+              value={Application.nativeApplicationVersion ?? 'tidak diketahui'}
+            />
+            {Application.applicationId === 'com.avaln.kas' ? (
+              <>
+                <Row
+                  label="Cek update"
+                  value={
+                    updatePhase === 'checking'
+                      ? 'Mengecek…'
+                      : updatePhase === 'downloading'
+                        ? 'Mengunduh…'
+                        : 'Jalankan'
+                  }
+                  onPress={() => void handleCheckUpdate()}
+                />
+                {release ? (
+                  <View style={styles.updateBox}>
+                    <Text style={styles.updateTitle}>{`Versi ${release.version} tersedia`}</Text>
+                    {release.notes ? (
+                      <Text style={styles.updateNotes} numberOfLines={5}>
+                        {release.notes}
+                      </Text>
+                    ) : null}
+                    <Pressable
+                      accessibilityRole="button"
+                      onPress={() => void handleInstallUpdate()}
+                      disabled={updatePhase === 'downloading'}
+                      style={({ pressed }) => [
+                        styles.updateButton,
+                        updatePhase === 'downloading' && styles.updateButtonBusy,
+                        pressed && styles.pressed,
+                      ]}
+                    >
+                      <Text style={styles.updateButtonLabel}>
+                        {updatePhase === 'downloading'
+                          ? `Mengunduh ${Math.round(progress * 100)}%`
+                          : `Unduh & pasang ${release.version}`}
+                      </Text>
+                    </Pressable>
+                  </View>
+                ) : null}
+                {updateMessage ? <Text style={styles.sectionHint}>{updateMessage}</Text> : null}
+                <Row
+                  label="Izin pasang aplikasi"
+                  value="Buka"
+                  onPress={() =>
+                    void openInstallPermission().catch((error) =>
+                      Alert.alert('Tidak bisa membuka pengaturan', messageOf(error)),
+                    )
+                  }
+                />
+                <Text style={styles.sectionHint}>
+                  Updater mengunduh APK dari GitHub Releases. Android tetap menampilkan dialog
+                  Install; data lama tidak hilang karena keystore sama.
+                </Text>
+              </>
+            ) : (
+              <Text style={styles.sectionHint}>Updater hanya tersedia di APK, bukan Expo Go.</Text>
+            )}
+          </Section>
+
           <Section title="Tabungan">
             <Row
               label="Saldo tabungan"
@@ -687,6 +803,39 @@ const useStyles = makeThemedStyles((c: Palette) =>
     },
     sectionBody: {
       marginTop: space.sm,
+    },
+    updateBox: {
+      marginTop: space.md,
+      paddingTop: space.md,
+      borderTopWidth: size.hairline,
+      borderTopColor: c.hairline,
+    },
+    updateTitle: {
+      ...type.meta,
+      color: c.ink,
+    },
+    updateNotes: {
+      ...type.meta,
+      fontSize: 12,
+      color: c.ink3,
+      marginTop: space.xs,
+      lineHeight: 18,
+    },
+    updateButton: {
+      marginTop: space.md,
+      minHeight: size.touch,
+      borderRadius: radius.full,
+      backgroundColor: c.ink,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    updateButtonBusy: {
+      backgroundColor: c.ink3,
+    },
+    updateButtonLabel: {
+      ...type.meta,
+      color: c.bg,
+      fontWeight: '600',
     },
     sectionHint: {
       ...type.meta,

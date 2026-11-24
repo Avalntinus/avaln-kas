@@ -31,12 +31,12 @@ const PALETTE: Record<
     danger: '#A33A32',
   },
   dark: {
-    bg: '#12100E',
-    ink: '#F2F1ED',
-    ink2: '#A8A49C',
-    ink3: '#6F6A63',
+    bg: '#0A0A0A',
+    ink: '#F5F5F5',
+    ink2: '#A6A6A6',
+    ink3: '#707070',
     accent: '#4FA98F',
-    danger: '#E07A6F',
+    danger: '#E57373',
   },
 };
 

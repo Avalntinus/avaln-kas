@@ -26,6 +26,7 @@ SQLite device, backup lewat file JSON.
   plus sisihkan/tarik manual, **target**, dan **sesuaikan saldo** (koreksi tanpa
   mengubah jatah mingguan)
 - **Ringkasan bulanan** — pengeluaran per kategori, pemasukan, tabungan, selisih
+- **Pembaruan dari dalam app** — cek rilis GitHub, unduh, lalu dialog Install
 - **Widget home screen** — sisa hari ini & minggu ini, bisa di-resize, tombol
   **Tutup/Lihat** untuk menyembunyikan saldo; tambahkan dari Setelan → Tampilan
   (khusus APK, bukan Expo Go)
@@ -82,8 +83,10 @@ dan target app ini native.
 
 ## Install APK
 
-APK rilis (universal, ±102 MB) tersedia di
-[Releases](https://github.com/Avalntinus/avaln-kas/releases).
+APK rilis per arsitektur (±34 MB untuk HP/tablet) tersedia di
+[Releases](https://github.com/Avalntinus/avaln-kas/releases). Setelah versi
+0.6.0, pembaruan bisa dijalankan dari dalam app: **Setelan → Pembaruan → Cek
+update**; app mengunduh APK dari GitHub lalu membuka dialog Install Android.
 
 Atau build sendiri — butuh JDK 21 + Android SDK (lihat [BUILD.md](BUILD.md)).
 

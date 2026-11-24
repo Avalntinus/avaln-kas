@@ -1,6 +1,6 @@
 import { router, useFocusEffect } from 'expo-router';
 import { useCallback, useEffect, useState } from 'react';
-import { Alert, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Alert, FlatList, Pressable, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import {
@@ -26,11 +26,47 @@ import { AmountText } from '@/ui/amount-text';
 type DayGroup = { date: ISODate; expense: number; income: number; items: Transaction[] };
 type WeekGroup = { weekStart: ISODate; expense: number; income: number; days: DayGroup[] };
 
+/** Baris datar supaya daftar bisa virtual: 70 hari riwayat tidak dirender sekaligus. */
+type Row =
+  | { type: 'week'; key: string; weekStart: ISODate; expense: number; income: number }
+  | { type: 'day'; key: string; date: ISODate; expense: number; income: number }
+  | { type: 'tx'; key: string; tx: Transaction; divider: boolean };
+
 const LOOKBACK_DAYS = 70;
+
+function flatten(weeks: WeekGroup[]): Row[] {
+  const rows: Row[] = [];
+
+  for (const week of weeks) {
+    rows.push({
+      type: 'week',
+      key: `w:${week.weekStart}`,
+      weekStart: week.weekStart,
+      expense: week.expense,
+      income: week.income,
+    });
+
+    for (const day of week.days) {
+      rows.push({
+        type: 'day',
+        key: `d:${day.date}`,
+        date: day.date,
+        expense: day.expense,
+        income: day.income,
+      });
+
+      day.items.forEach((tx, index) => {
+        rows.push({ type: 'tx', key: `t:${tx.id}`, tx, divider: index > 0 });
+      });
+    }
+  }
+
+  return rows;
+}
 
 export default function HistoryScreen() {
   const styles = useStyles();
-  const [groups, setGroups] = useState<WeekGroup[]>([]);
+  const [rows, setRows] = useState<Row[]>([]);
   const [loading, setLoading] = useState(true);
   const [tick, setTick] = useState(0);
 
@@ -46,11 +82,11 @@ export default function HistoryScreen() {
     (async () => {
       const settings = await getSettings();
       const today = todayISO();
-      const rows = await listTransactionsBetween(addDays(today, -LOOKBACK_DAYS), today);
+      const items = await listTransactionsBetween(addDays(today, -LOOKBACK_DAYS), today);
       if (cancelled) return;
 
       const weeks = new Map<ISODate, Map<ISODate, Transaction[]>>();
-      for (const row of rows) {
+      for (const row of items) {
         const weekStart = startOfWeek(row.localDate, settings.weekStart);
         if (!weeks.has(weekStart)) weeks.set(weekStart, new Map());
         const days = weeks.get(weekStart)!;
@@ -63,15 +99,15 @@ export default function HistoryScreen() {
         .map(([weekStart, days]) => {
           const dayGroups: DayGroup[] = [...days.entries()]
             .sort((a, b) => (a[0] < b[0] ? 1 : -1))
-            .map(([date, items]) => ({
+            .map(([date, dayItems]) => ({
               date,
-              expense: items
+              expense: dayItems
                 .filter((item) => item.kind === 'expense' && !item.isSavings)
                 .reduce((sum, item) => sum + item.amount, 0),
-              income: items
+              income: dayItems
                 .filter((item) => item.kind === 'income' && !item.isSavings)
                 .reduce((sum, item) => sum + item.amount, 0),
-              items,
+              items: dayItems,
             }));
           return {
             weekStart,
@@ -81,7 +117,7 @@ export default function HistoryScreen() {
           };
         });
 
-      setGroups(result);
+      setRows(flatten(result));
       setLoading(false);
     })();
 
@@ -108,6 +144,70 @@ export default function HistoryScreen() {
     ]);
   }
 
+  function renderRow({ item }: { item: Row }) {
+    if (item.type === 'week') {
+      return (
+        <View style={styles.weekHeader}>
+          <Text style={styles.label}>
+            {`${formatDayMonth(item.weekStart)} – ${formatDayMonth(addDays(item.weekStart, 6))}`}
+          </Text>
+          <View style={styles.amounts}>
+            <AmountText value={item.expense} variant="meta" tone="muted" />
+            {item.income > 0 ? (
+              <AmountText value={item.income} variant="meta" tone="accent" signed />
+            ) : null}
+          </View>
+        </View>
+      );
+    }
+
+    if (item.type === 'day') {
+      return (
+        <View style={styles.dayHeader}>
+          <Text style={styles.dayLabel}>{formatLongDate(item.date)}</Text>
+          <View style={styles.amounts}>
+            <AmountText value={item.expense} variant="meta" tone="muted" />
+            {item.income > 0 ? (
+              <AmountText value={item.income} variant="meta" tone="accent" signed />
+            ) : null}
+          </View>
+        </View>
+      );
+    }
+
+    const { tx } = item;
+
+    return (
+      <Pressable
+        accessibilityRole="button"
+        onPress={() => openActions(tx)}
+        style={({ pressed }) => [
+          styles.row,
+          item.divider && styles.rowBorder,
+          pressed && styles.rowPressed,
+        ]}
+      >
+        <Text style={styles.rowNote} numberOfLines={1}>
+          {tx.kind === 'income' ? `Masuk · ${transactionLabel(tx)}` : transactionLabel(tx)}
+        </Text>
+        <AmountText
+          value={tx.amount}
+          variant="body"
+          tone={
+            tx.isSavings
+              ? tx.kind === 'income'
+                ? 'accent'
+                : 'muted'
+              : tx.kind === 'income'
+                ? 'accent'
+                : 'default'
+          }
+          signed={tx.kind === 'income'}
+        />
+      </Pressable>
+    );
+  }
+
   return (
     <SafeAreaView edges={['top']} style={styles.safe}>
       <View style={styles.container}>
@@ -121,75 +221,20 @@ export default function HistoryScreen() {
 
         {loading ? (
           <Text style={styles.empty}>Memuat…</Text>
-        ) : groups.length === 0 ? (
+        ) : rows.length === 0 ? (
           <Text style={styles.empty}>Belum ada transaksi.</Text>
         ) : (
-          <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.list}>
-            {groups.map((week) => (
-              <View key={week.weekStart}>
-                <View style={styles.weekHeader}>
-                  <Text style={styles.label}>
-                    {`${formatDayMonth(week.weekStart)} – ${formatDayMonth(
-                      addDays(week.weekStart, 6),
-                    )}`}
-                  </Text>
-                  <View style={styles.amounts}>
-                    <AmountText value={week.expense} variant="meta" tone="muted" />
-                    {week.income > 0 ? (
-                      <AmountText value={week.income} variant="meta" tone="accent" signed />
-                    ) : null}
-                  </View>
-                </View>
-
-                {week.days.map((day) => (
-                  <View key={day.date}>
-                    <View style={styles.dayHeader}>
-                      <Text style={styles.dayLabel}>{formatLongDate(day.date)}</Text>
-                      <View style={styles.amounts}>
-                        <AmountText value={day.expense} variant="meta" tone="muted" />
-                        {day.income > 0 ? (
-                          <AmountText value={day.income} variant="meta" tone="accent" signed />
-                        ) : null}
-                      </View>
-                    </View>
-
-                    {day.items.map((tx, index) => (
-                      <Pressable
-                        key={tx.id}
-                        accessibilityRole="button"
-                        onPress={() => openActions(tx)}
-                        style={({ pressed }) => [
-                          styles.row,
-                          index > 0 && styles.rowBorder,
-                          pressed && styles.rowPressed,
-                        ]}
-                      >
-                        <Text style={styles.rowNote} numberOfLines={1}>
-                          {tx.kind === 'income'
-                            ? `Masuk · ${transactionLabel(tx)}`
-                            : transactionLabel(tx)}
-                        </Text>
-                        <AmountText
-                          value={tx.amount}
-                          variant="body"
-                          tone={
-                            tx.isSavings
-                              ? tx.kind === 'income'
-                                ? 'accent'
-                                : 'muted'
-                              : tx.kind === 'income'
-                                ? 'accent'
-                                : 'default'
-                          }
-                          signed={tx.kind === 'income'}
-                        />
-                      </Pressable>
-                    ))}
-                  </View>
-                ))}
-              </View>
-            ))}
-          </ScrollView>
+          <FlatList
+            data={rows}
+            keyExtractor={(item) => item.key}
+            renderItem={renderRow}
+            showsVerticalScrollIndicator={false}
+            contentContainerStyle={styles.list}
+            initialNumToRender={18}
+            maxToRenderPerBatch={12}
+            windowSize={9}
+            removeClippedSubviews
+          />
         )}
       </View>
     </SafeAreaView>

@@ -31,16 +31,16 @@ export const lightColors: Palette = {
 };
 
 export const darkColors: Palette = {
-  bg: '#12100E',
-  surface: '#1A1816',
-  sunken: '#23201D',
-  ink: '#F2F1ED',
-  ink2: '#A8A49C',
-  ink3: '#6F6A63',
-  hairline: '#2E2A26',
+  bg: '#0A0A0A',
+  surface: '#121212',
+  sunken: '#1A1A1A',
+  ink: '#F5F5F5',
+  ink2: '#A6A6A6',
+  ink3: '#707070',
+  hairline: '#262626',
   accent: '#4FA98F',
-  warn: '#D9A441',
-  danger: '#E07A6F',
+  warn: '#E0A94A',
+  danger: '#E57373',
 };
 
 export type ThemeMode = 'system' | 'light' | 'dark';
