@@ -33,7 +33,7 @@ Setelah prebuild, signing release harus diarahkan ke keystore sendiri:
 1. Buat `android/keystore.properties`:
 
 ```
-storeFile=/home/avaln/.android/avaln-kas-release.keystore
+storeFile=~/.android/avaln-kas-release.keystore
 storePassword=...
 keyAlias=avaln-kas
 keyPassword=...

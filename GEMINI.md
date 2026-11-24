@@ -12,5 +12,5 @@ Kalau belum terbaca, ini aturan kerasnya:
 6. Jangan ubah `MIGRATION_1`; tambah migrasi baru + naikkan `DATABASE_VERSION`.
 7. Sebelum bilang selesai: `npm test` (47 hijau), `npm run typecheck`,
    `npm run lint`, `npx expo export --platform android`.
-8. Handoff & log: `/home/avaln/Documents/Obsidian Vault/00-Handoff/current.md`
+8. Handoff & log: `~/Documents/Obsidian Vault/00-Handoff/current.md`
    dan `20-Logs/YYYY-MM-DD.md`.

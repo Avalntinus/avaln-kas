@@ -50,8 +50,8 @@ Bahasa UI: **Indonesia**. Nada copy: pendek, netral, tanpa emoji.
 ## 3. Urutan membaca untuk agent baru (wajib)
 
 1. File ini (`AGENTS.md`).
-2. `/home/avaln/Documents/Obsidian Vault/00-Handoff/current.md` — state terakhir.
-3. `/home/avaln/Documents/Obsidian Vault/10-Projects/aplikasi-budgeting.md`.
+2. `~/Documents/Obsidian Vault/00-Handoff/current.md` — state terakhir.
+3. `~/Documents/Obsidian Vault/10-Projects/aplikasi-budgeting.md`.
 4. `src/logic/rollover.ts` + `src/db/repo.ts`.
 
 Kalau dua sumber berbeda, percayai **kode + test**, lalu perbarui dokumen.
@@ -350,7 +350,7 @@ Jangan mulai fitur baru di luar daftar ini tanpa bertanya ke pemilik.
 
 ## 12. Vault Obsidian (memori bersama)
 
-Vault: `/home/avaln/Documents/Obsidian Vault`
+Vault: `~/Documents/Obsidian Vault`
 
 - Handoff terakhir: `00-Handoff/current.md`
 - Project: `10-Projects/aplikasi-budgeting.md`
@@ -364,7 +364,7 @@ pada satu waktu.
 
 ## 13. Brief siap tempel untuk agent berikutnya
 
-> Lanjutkan project di `/home/avaln/Documents/Project Aplikasi Budgeting`.
+> Lanjutkan project di `root repo ini`.
 > Baca `AGENTS.md` di root, lalu `00-Handoff/current.md` di vault Obsidian.
 > Jangan ubah `src/logic/rollover.ts` tanpa menjalankan `npm test`.
 > Sebelum selesai: `npm test`, `npm run typecheck`, `npm run lint`,
