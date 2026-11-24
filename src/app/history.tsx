@@ -22,6 +22,7 @@ import { formatRp } from '@/lib/money';
 import { makeThemedStyles } from '@/theme/theme';
 import { size, space, type, type Palette } from '@/theme/tokens';
 import { AmountText } from '@/ui/amount-text';
+import { ScreenBody } from '@/ui/motion';
 
 type DayGroup = { date: ISODate; expense: number; income: number; items: Transaction[] };
 type WeekGroup = { weekStart: ISODate; expense: number; income: number; days: DayGroup[] };
@@ -210,7 +211,7 @@ export default function HistoryScreen() {
 
   return (
     <SafeAreaView edges={['top']} style={styles.safe}>
-      <View style={styles.container}>
+      <ScreenBody style={styles.container}>
         <View style={styles.header}>
           <Pressable accessibilityRole="button" onPress={() => router.back()} hitSlop={space.md}>
             <Text style={styles.back}>Kembali</Text>
@@ -236,7 +237,7 @@ export default function HistoryScreen() {
             removeClippedSubviews
           />
         )}
-      </View>
+      </ScreenBody>
     </SafeAreaView>
   );
 }

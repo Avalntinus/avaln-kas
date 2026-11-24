@@ -8,6 +8,7 @@ import { digitsToAmount, formatRp } from '@/lib/money';
 import { makeThemedStyles } from '@/theme/theme';
 import { radius, size, space, type, type Palette } from '@/theme/tokens';
 import { MoneyPad } from '@/ui/money-pad';
+import { ScreenBody } from '@/ui/motion';
 
 const MAX_DIGITS = 10;
 
@@ -54,7 +55,7 @@ export default function WelcomeScreen() {
 
   return (
     <SafeAreaView edges={['top', 'bottom']} style={styles.safe}>
-      <View style={styles.container}>
+      <ScreenBody style={styles.container}>
         <Text style={styles.brand}>Avaln Kas</Text>
 
         <Text style={styles.title}>Berapa budget mingguanmu?</Text>
@@ -118,7 +119,7 @@ export default function WelcomeScreen() {
         <View style={styles.spacer} />
 
         <MoneyPad onDigit={handleDigit} />
-      </View>
+      </ScreenBody>
     </SafeAreaView>
   );
 }

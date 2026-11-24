@@ -63,6 +63,14 @@ unduhan tiga kali lebih kecil dan pemasangan tidak menyimpan kode CPU yang
 tidak dipakai. Rilis GitHub wajib menyertakan **kedua** file: updater memilih
 `x86_64` di emulator dan `arm64` di perangkat nyata.
 
+Cek tanda tangan sebelum mengunggah (wajib cocok dengan rilis sebelumnya, kalau
+tidak update akan ditolak dengan `INSTALL_FAILED_UPDATE_INCOMPATIBLE`):
+
+```bash
+$ANDROID_HOME/build-tools/36.0.0/apksigner verify --print-certs \
+  app/build/outputs/apk/release/app-arm64-v8a-release.apk | grep 'certificate SHA-256'
+```
+
 ## Pasang ke HP/emulator
 
 ```bash

@@ -341,9 +341,25 @@ dan splash gelap di `app.json` wajib memakai nilai yang sama.
   cadangan. Izin `REQUEST_INSTALL_PACKAGES` ada di `app.json`; Android tetap
   menampilkan dialog Install (tidak bisa senyap), dan APK bertanda tangan lain
   ditolak sistem sehingga keamanan bergantung pada keystore, bukan hash.
+- **Verifikasi tanda tangan APK sebelum rilis:**
+  `$ANDROID_HOME/build-tools/36.0.0/apksigner verify --print-certs <apk>` harus
+  menampilkan SHA-256 keystore rilis (`B2:44:9B:CB:…`). Kalau yang muncul kunci
+  debug (`FA:C6:17:45:…`), `buildTypes.release` salah menunjuk dan update akan
+  ditolak dengan `INSTALL_FAILED_UPDATE_INCOMPATIBLE`. `scripts/patch-android-release.py`
+  menormalkan blok `debug`/`release` berdasarkan konteks.
 - **Ukuran APK:** jangan membangun APK universal. `app-arm64-v8a` ±34 MB vs
   universal ±102 MB. Butuh `python3 scripts/patch-android-release.py` setelah
   prebuild.
+- **Celah putih saat transisi:** `android:windowBackground` memakai
+  `activityBackground`, sedangkan `expo-splash-screen` hanya menulis
+  `splashscreen_background` untuk mode malam. `plugins/with-dark-window-background.js`
+  menambahkan `activityBackground` gelap; `expo-system-ui` menyamakan warna jendela
+  dengan tema app saat runtime (kalau user memilih Terang/Gelap manual).
+- **Animasi antar layar:** `animation: 'slide_from_right'` di `_layout.tsx` +
+  `ScreenBody` (`src/ui/motion.tsx`) memberi fade + naik 6dp 180ms. Hanya opacity
+  dan translateY (native driver) dan menghormati Reduce motion. Jangan memakai
+  `react-native-reanimated` di sini: repo tidak punya `babel.config.js`, jadi
+  worklet belum dikonfigurasi.
 - **Daftar panjang pakai `FlatList`**, bukan `ScrollView` + `.map` (Riwayat 70
   hari). Widget hanya di-refresh saat perlu; jangan menaruh query DB di
   `render` widget.

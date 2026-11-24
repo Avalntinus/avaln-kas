@@ -16,6 +16,7 @@ import { digitsToAmount, formatRp, normalizeNote } from '@/lib/money';
 import { makeThemedStyles, useTheme } from '@/theme/theme';
 import { radius, size, space, type, type Palette } from '@/theme/tokens';
 import { MoneyPad } from '@/ui/money-pad';
+import { ScreenBody } from '@/ui/motion';
 
 const MAX_DIGITS = 12;
 
@@ -145,7 +146,7 @@ export default function AddScreen() {
 
   return (
     <SafeAreaView edges={['top', 'bottom']} style={styles.safe}>
-      <View style={styles.container}>
+      <ScreenBody style={styles.container}>
         <View style={styles.header}>
           <Pressable accessibilityRole="button" onPress={() => router.back()} hitSlop={space.md}>
             <Text style={styles.cancel}>Batal</Text>
@@ -256,7 +257,7 @@ export default function AddScreen() {
         </View>
 
         <MoneyPad onDigit={handleDigit} />
-      </View>
+      </ScreenBody>
     </SafeAreaView>
   );
 }

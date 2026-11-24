@@ -43,6 +43,7 @@ import { splitDaily } from '@/logic/rollover';
 import { makeThemedStyles, useTheme } from '@/theme/theme';
 import { radius, size, space, type, type Palette } from '@/theme/tokens';
 import { MoneyEditor } from '@/ui/money-editor';
+import { ScreenBody } from '@/ui/motion';
 
 const THEME_OPTIONS = [
   { value: 'system' as const, label: 'Sistem' },
@@ -344,9 +345,9 @@ export default function SettingsScreen() {
   if (!settings) {
     return (
       <SafeAreaView edges={['top']} style={styles.safe}>
-        <View style={styles.container}>
+        <ScreenBody style={styles.container}>
           <Text style={styles.empty}>Memuat…</Text>
-        </View>
+        </ScreenBody>
       </SafeAreaView>
     );
   }
@@ -356,7 +357,7 @@ export default function SettingsScreen() {
 
   return (
     <SafeAreaView edges={['top']} style={styles.safe}>
-      <View style={styles.container}>
+      <ScreenBody style={styles.container}>
         <View style={styles.header}>
           <Pressable accessibilityRole="button" onPress={() => router.back()} hitSlop={space.md}>
             <Text style={styles.back}>Kembali</Text>
@@ -691,7 +692,7 @@ export default function SettingsScreen() {
             </Text>
           </Section>
         </ScrollView>
-      </View>
+      </ScreenBody>
 
       {editor !== null ? (
         <MoneyEditor

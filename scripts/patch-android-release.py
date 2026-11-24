@@ -102,9 +102,21 @@ def patch_gradle() -> None:
             1,
         )
 
-    source = source.replace(
-        "signingConfig signingConfigs.debug", "signingConfig signingConfigs.release", 1
-    )
+    # Template bisa punya `signingConfig signingConfigs.debug` di buildTypes.debug
+    # maupun buildTypes.release. Ganti berdasarkan bloknya, bukan kemunculan pertama.
+    lines = source.splitlines()
+    current = None
+    for index, line in enumerate(lines):
+        stripped = line.strip()
+        if stripped in ("debug {", "release {"):
+            current = stripped[:-2]
+        elif stripped.startswith("signingConfig signingConfigs.") and current:
+            lines[index] = re.sub(
+                r"signingConfig signingConfigs\.\w+",
+                f"signingConfig signingConfigs.{current}",
+                line,
+            )
+    source = "\n".join(lines) + "\n"
 
     if "splits {" not in source:
         source = source.replace("    defaultConfig {\n", SPLITS_BLOCK + "\n    defaultConfig {\n", 1)
