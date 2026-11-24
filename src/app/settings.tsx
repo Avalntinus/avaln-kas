@@ -686,7 +686,9 @@ export default function SettingsScreen() {
               <Text style={styles.danger}>Hapus semua transaksi</Text>
             </Pressable>
             <Text style={styles.sectionHint}>Data tersimpan lokal di HP ini.</Text>
-            <Text style={styles.version}>Avaln Kas · v0.1.0</Text>
+            <Text style={styles.version}>
+              {`Avaln Kas · v${Application.nativeApplicationVersion ?? '0.0.0'}`}
+            </Text>
           </Section>
         </ScrollView>
       </View>
