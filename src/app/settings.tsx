@@ -23,6 +23,7 @@ import {
   deleteAllTransactions,
   deleteCategory,
   exportBackup,
+  getSavingsBalance,
   getSettings,
   importBackup,
   listCategories,
@@ -72,6 +73,7 @@ export default function SettingsScreen() {
   const [editingKey, setEditingKey] = useState(false);
   const [keyDraft, setKeyDraft] = useState('');
   const [aiMessage, setAiMessage] = useState<string | null>(null);
+  const [savingsBalance, setSavingsBalance] = useState(0);
 
   const load = useCallback(async () => {
     const [nextSettings, nextCategories] = await Promise.all([getSettings(), listCategories()]);
@@ -83,15 +85,17 @@ export default function SettingsScreen() {
     let cancelled = false;
 
     (async () => {
-      const [nextSettings, nextCategories, storedKey] = await Promise.all([
+      const [nextSettings, nextCategories, storedKey, nextBalance] = await Promise.all([
         getSettings(),
         listCategories(),
         getAiKey(),
+        getSavingsBalance(),
       ]);
       if (cancelled) return;
       setSettings(nextSettings);
       setCategories(nextCategories);
       setAiKeyState(storedKey);
+      setSavingsBalance(nextBalance);
     })();
 
     return () => {
@@ -434,6 +438,23 @@ export default function SettingsScreen() {
                 </Text>
               </Pressable>
             </View>
+          </Section>
+
+          <Section title="Tabungan">
+            <Row
+              label="Saldo tabungan"
+              value={formatRp(savingsBalance)}
+              onPress={() => router.push('/savings')}
+            />
+            <Row
+              label="Sweep otomatis"
+              value={settings.savingsEnabled ? 'Aktif' : 'Nonaktif'}
+              onPress={() => void save({ savingsEnabled: !settings.savingsEnabled })}
+            />
+            <Text style={styles.sectionHint}>
+              Sisa bulan disapu ke tabungan setiap awal bulan (dieksekusi pada awal minggu pertama
+              setelah tanggal 1). Saldo minus tidak pernah disapu.
+            </Text>
           </Section>
 
           <Section title="AI (opsional)">

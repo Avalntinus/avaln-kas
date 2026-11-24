@@ -136,6 +136,7 @@ src/app/                 route (expo-router, folder src/app, nama kebab-case)
                          (redirect ke /welcome kalau settings.onboarded masih false)
   add.tsx                Tambah/ubah transaksi (toggle Pengeluaran/Pemasukan + MoneyPad)
   quick.tsx              Tambah cepat: satu kalimat → draft transaksi (lokal/AI)
+  savings.tsx            Tabungan: saldo, riwayat, sisihkan/tarik
   history.tsx            Riwayat: grup minggu → hari, tap baris = ubah/hapus
   week.tsx               Rincian minggu: 7 hari, jatah vs terpakai, carry, rollover
   settings.tsx           Budget, batas bawah, mulai minggu, kategori, backup, reset
@@ -147,6 +148,7 @@ src/ai/
 
 src/logic/
   quick-add.ts           Parser lokal "kopi 18rb" (murni, ada test)
+  savings.ts             Jadwal sweep bulanan (murni, ada test)
   rollover.ts            JANTUNG: split pool → jatah harian → carry chain
   weeks.ts               Pembekuan minggu lewat ke tabel `weeks` (pakai DB)
   weeks-planner.ts       Daftar minggu yang perlu dibekukan (murni, ada test)
@@ -170,6 +172,7 @@ src/lib/
   labels.ts              transactionLabel(note → kategori → placeholder)
 
 src/features/home/use-home-data.ts   query + closePastWeeks + refresh saat fokus
+src/features/savings/                hook tabungan + sweep otomatis
 src/theme/tokens.ts                  satu-satunya sumber warna/spacing/tipe
 
 ```
@@ -228,6 +231,12 @@ Aturan:
   Tambah migrasi baru = naikkan `DATABASE_VERSION` + push SQL ke array.
 - Seed hanya untuk instalasi baru (4 kategori + settings 30.000/210.000).
 - `settings.theme_mode` (migrasi v5) = preferensi tampilan (`system|light|dark`).
+- Tabungan (migrasi v6): `settings.savings_enabled`, `settings.last_sweep_period`,
+  dan `transactions.is_savings`. Setoran = `expense` + `is_savings=1` (mengurangi
+  jatah), penarikan = `income` + `is_savings=1` (menambah jatah). Saldo =
+  Σ setoran − Σ penarikan. Sweep otomatis sekali per bulan: tanggal eksekusi =
+  awal minggu pertama setelah tanggal 1, transfer diberi tanggal H-1 dari awal
+  minggu itu supaya minggu baru mulai bersih. Sisa minus tidak pernah disapu.
 - `settings.started_on` (migrasi v4) = tanggal app mulai dipakai. Minggu sebelum
   tanggal ini **tidak** diberi budget/rollover, supaya transaksi yang di-backdate
   ke minggu lalu tidak tiba-tiba memberi surplus. Migrasi v4 juga menghapus cache
@@ -308,10 +317,12 @@ space 4/8/12/16/24/32/48 · radius 12/999 · meter 2px · touch 44
 ## 11. Status & backlog
 
 Selesai: nama **Avaln Kas** + identitas teknis, scaffold, tokens, money/date, rollover,
-DB v5 (`kind`, `onboarded`, `started_on`, `theme_mode`), layar sambutan, Home, Tambah,
-Riwayat, Rincian minggu, Tambah cepat (lokal + AI opsional), **dark mode**, Settings,
-kategori CRUD, backup export/import JSON, tutup minggu otomatis.
-**68 test hijau** (rollover, perencana minggu, parser tambah cepat, validator backup & AI).
+DB v6 (`kind`, `onboarded`, `started_on`, `theme_mode`, tabungan), layar sambutan,
+Home, Tambah, Riwayat, Rincian minggu, Tambah cepat (lokal + AI opsional),
+**tabungan**, **dark mode**, Settings, kategori CRUD, backup export/import JSON,
+tutup minggu otomatis.
+**75 test hijau** (rollover, perencana minggu, parser tambah cepat, jadwal sweep,
+validator backup & AI).
 Sudah diuji native di emulator: onboarding → pengeluaran → pemasukan → riwayat →
 rincian minggu → tambah cepat (lokal) → AI menolak key palsu dengan pesan benar.
 

@@ -11,16 +11,19 @@ SQLite device, backup lewat file JSON.
 > onboarding, tambah/edit, riwayat, setelan, backup). AI menyusul.
 
 <p align="center">
-  <img src="docs/screenshots/home.png" width="170" alt="Home — sisa hari ini dan meter mingguan" />
-  <img src="docs/screenshots/quick.png" width="170" alt="Tambah cepat — satu kalimat jadi transaksi" />
-  <img src="docs/screenshots/add.png" width="170" alt="Tambah pengeluaran dengan keypad IDR" />
-  <img src="docs/screenshots/week.png" width="170" alt="Rincian minggu — jatah dan carry tiap hari" />
-  <img src="docs/screenshots/history.png" width="170" alt="Riwayat dikelompokkan per minggu dan hari" />
+  <img src="docs/screenshots/home.png" width="150" alt="Home — sisa hari ini dan meter mingguan" />
+  <img src="docs/screenshots/quick.png" width="150" alt="Tambah cepat — satu kalimat jadi transaksi" />
+  <img src="docs/screenshots/add.png" width="150" alt="Tambah pengeluaran dengan keypad IDR" />
+  <img src="docs/screenshots/savings.png" width="150" alt="Tabungan — saldo dan riwayat setor/tarik" />
+  <img src="docs/screenshots/week.png" width="150" alt="Rincian minggu — jatah dan carry tiap hari" />
+  <img src="docs/screenshots/history.png" width="150" alt="Riwayat dikelompokkan per minggu dan hari" />
 </p>
 
 ## Fitur
 
 - **Rolling budget** harian dan mingguan, mode debt + `debt_floor`
+- **Tabungan** — sisa bulan disapu otomatis tiap awal bulan (bisa dimatikan),
+  plus sisihkan/tarik manual
 - **Dark mode** — ikut sistem atau pilih Terang/Gelap; palet charcoal, bukan hitam pekat
 - **Tambah cepat** — tulis “kopi 18rb” atau “kemarin parkir 5rb”; parser lokal jalan
   offline, AI Gemini opsional untuk kalimat bebas
@@ -118,6 +121,7 @@ tanggal `YYYY-MM-DD`, logika rollover tetap murni, warna hanya dari token.
 - [x] Tambah cepat (parser lokal, offline)
 - [x] Integrasi Gemini Flash (opsional, key di SecureStore, output divalidasi)
 - [x] Layar rincian minggu (7 hari + carry)
+- [x] Tabungan (sweep awal bulan, sisihkan/tarik manual)
 - [x] Dark mode (System / Terang / Gelap)
 - [x] Build APK rilis (keystore sendiri, standalone tanpa Metro)
 - [ ] Aktifkan AI dengan API key pribadi

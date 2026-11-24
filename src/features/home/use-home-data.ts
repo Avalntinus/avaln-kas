@@ -3,6 +3,7 @@ import { useCallback, useState } from 'react';
 
 import {
   getIncomeBetween,
+  getSavingsBalance,
   getSettings,
   getSpendByDate,
   listTransactionsByDate,
@@ -16,6 +17,7 @@ import {
   type HomeView,
   type WeekStartDay,
 } from '@/logic/rollover';
+import { maybeSweepSavings } from '@/features/savings/sweep';
 import { closePastWeeks } from '@/logic/weeks';
 
 export interface HomeData {
@@ -24,6 +26,7 @@ export interface HomeData {
   home: HomeView | null;
   today: ISODate;
   transactions: Transaction[];
+  savingsBalance: number;
   /** true = belum pernah mengatur budget, arahkan ke layar sambutan */
   needsSetup: boolean;
 }
@@ -34,6 +37,7 @@ const EMPTY: HomeData = {
   home: null,
   today: todayISO(),
   transactions: [],
+  savingsBalance: 0,
   needsSetup: false,
 };
 
@@ -64,14 +68,18 @@ export function useHomeData(): HomeData {
 
           // Bekukan minggu lalu dulu supaya rolloverIn minggu ini tidak 0.
           await closePastWeeks(budgetSettings, today);
+          await maybeSweepSavings(settings, today);
 
           const weekEnd = addDays(weekStartDate, 6);
-          const [spendByDate, income, rolloverIn, transactions] = await Promise.all([
-            getSpendByDate(weekStartDate, weekEnd),
-            getIncomeBetween(weekStartDate, weekEnd),
-            resolveRolloverIn(weekStartDate),
-            listTransactionsByDate(today),
-          ]);
+          const [spendByDate, income, rolloverIn, transactions, savingsBalance] = await Promise.all(
+            [
+              getSpendByDate(weekStartDate, weekEnd),
+              getIncomeBetween(weekStartDate, weekEnd),
+              resolveRolloverIn(weekStartDate),
+              listTransactionsByDate(today),
+              getSavingsBalance(),
+            ],
+          );
 
           const home = buildHomeView({
             today,
@@ -88,6 +96,7 @@ export function useHomeData(): HomeData {
             home,
             today,
             transactions,
+            savingsBalance,
             needsSetup: !settings.onboarded,
           });
         } catch (error) {

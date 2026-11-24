@@ -17,7 +17,7 @@ export default function HomeScreen() {
   const styles = useStyles();
   const { width } = useWindowDimensions();
   const insets = useSafeAreaInsets();
-  const { loading, error, home, today, transactions, needsSetup } = useHomeData();
+  const { loading, error, home, today, transactions, savingsBalance, needsSetup } = useHomeData();
 
   // Angka 48pt aman di tablet, tetapi di HP 360dp perlu diturunkan agar tidak terpotong.
   const displaySize = width < 380 ? 40 : 48;
@@ -118,6 +118,19 @@ export default function HomeScreen() {
 
         <Pressable
           accessibilityRole="button"
+          accessibilityLabel="Buka tabungan"
+          onPress={() => router.push('/savings')}
+          style={({ pressed }) => [styles.weekRow, pressed && styles.pressed]}
+        >
+          <Text style={styles.muted}>Tabungan</Text>
+          <View style={styles.weekValue}>
+            <AmountText value={savingsBalance} variant="meta" tone="accent" />
+            <Text style={styles.chevron}>›</Text>
+          </View>
+        </Pressable>
+
+        <Pressable
+          accessibilityRole="button"
           accessibilityLabel="Tambah cepat"
           onPress={() => router.push('/quick')}
           style={({ pressed }) => [styles.quick, pressed && styles.pressed]}
@@ -131,7 +144,11 @@ export default function HomeScreen() {
         <View style={styles.listHeader}>
           <Text style={styles.label}>Hari ini</Text>
           <Text style={styles.caption}>
-            {`${transactions.length} transaksi · keluar ${formatRp(home.spentToday)}`}
+            {`${transactions.length} transaksi · keluar ${formatRp(
+              transactions
+                .filter((tx) => tx.kind === 'expense' && !tx.isSavings)
+                .reduce((sum, tx) => sum + tx.amount, 0),
+            )}`}
           </Text>
         </View>
 

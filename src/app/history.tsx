@@ -66,10 +66,10 @@ export default function HistoryScreen() {
             .map(([date, items]) => ({
               date,
               expense: items
-                .filter((item) => item.kind === 'expense')
+                .filter((item) => item.kind === 'expense' && !item.isSavings)
                 .reduce((sum, item) => sum + item.amount, 0),
               income: items
-                .filter((item) => item.kind === 'income')
+                .filter((item) => item.kind === 'income' && !item.isSavings)
                 .reduce((sum, item) => sum + item.amount, 0),
               items,
             }));
@@ -172,7 +172,15 @@ export default function HistoryScreen() {
                         <AmountText
                           value={tx.amount}
                           variant="body"
-                          tone={tx.kind === 'income' ? 'accent' : 'default'}
+                          tone={
+                            tx.isSavings
+                              ? tx.kind === 'income'
+                                ? 'accent'
+                                : 'muted'
+                              : tx.kind === 'income'
+                                ? 'accent'
+                                : 'default'
+                          }
                           signed={tx.kind === 'income'}
                         />
                       </Pressable>

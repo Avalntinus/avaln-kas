@@ -20,6 +20,8 @@ export interface BackupSettings {
   weekStart: number;
   debtFloor: number | null;
   themeMode: ThemeMode;
+  savingsEnabled: boolean;
+  lastSweepPeriod: string | null;
 }
 
 export interface BackupTransaction {
@@ -27,6 +29,7 @@ export interface BackupTransaction {
   amount: number;
   category: string | null;
   note: string;
+  isSavings: boolean;
   localDate: string;
   occurredAt: number;
 }
@@ -100,6 +103,11 @@ export function parseBackup(input: string): BackupFile {
   const themeMode: ThemeMode =
     themeRaw === 'light' || themeRaw === 'dark' || themeRaw === 'system' ? themeRaw : 'system';
 
+  const savingsEnabled = settings.savingsEnabled !== false;
+  const lastRaw = settings.lastSweepPeriod;
+  const lastSweepPeriod =
+    typeof lastRaw === 'string' && /^\d{4}-\d{2}$/.test(lastRaw) ? lastRaw : null;
+
   let debtFloor: number | null = null;
   if (settings.debtFloor !== null && settings.debtFloor !== undefined) {
     if (typeof settings.debtFloor !== 'number' || !Number.isFinite(settings.debtFloor)) {
@@ -143,14 +151,30 @@ export function parseBackup(input: string): BackupFile {
       if (category === '') category = null;
     }
 
-    return { kind, amount, category, note, localDate, occurredAt };
+    return {
+      kind,
+      amount,
+      category,
+      note,
+      isSavings: item.isSavings === true,
+      localDate,
+      occurredAt,
+    };
   });
 
   return {
     app: BACKUP_APP,
     version: BACKUP_VERSION,
     exportedAt: typeof raw.exportedAt === 'string' ? raw.exportedAt : new Date().toISOString(),
-    settings: { dailyTarget, weeklyBudget, weekStart, debtFloor, themeMode },
+    settings: {
+      dailyTarget,
+      weeklyBudget,
+      weekStart,
+      debtFloor,
+      themeMode,
+      savingsEnabled,
+      lastSweepPeriod,
+    },
     categories,
     transactions,
   };
