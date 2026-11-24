@@ -18,14 +18,15 @@ big = ImageFont.truetype("/usr/share/fonts/google-carlito-fonts/Carlito-Bold.ttf
 small = ImageFont.truetype("/usr/share/fonts/google-carlito-fonts/Carlito-Regular.ttf", 26)
 
 d.text((56, 56), "SISA HARI INI", font=label, fill=INK3)
+d.text((650, 56), "Tutup", font=label, fill=ACCENT)
 d.text((52, 92), "Rp 30.000", font=big, fill=INK)
 d.rectangle([56, 196, 56 + 210, 204], fill=ACCENT)
 d.rectangle([56 + 210, 196, 56 + 330, 204], fill=(232, 230, 225))
 
-d.text((560, 64), "Minggu", font=small, fill=INK3)
-d.text((560, 100), "Rp 210.000", font=label, fill=INK2)
+d.text((56, 300), "Minggu", font=small, fill=INK3)
+d.text((560, 300), "Rp 210.000", font=label, fill=INK2)
 
-d.text((56, 300), "Avaln Kas", font=bold, fill=INK2)
+
 
 img.save("assets/widget-preview/budget.png", "PNG")
 print("preview saved")

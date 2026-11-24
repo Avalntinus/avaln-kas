@@ -2,14 +2,20 @@ import type { WidgetTaskHandlerProps } from 'react-native-android-widget';
 
 import { BudgetWidget } from './budget-widget';
 import { BUDGET_WIDGET_NAME } from './constants';
-import { loadWidgetData } from './data';
+import { loadWidgetData, type WidgetData } from './data';
+import { getWidgetHidden, setWidgetHidden } from './prefs';
+
+const EMPTY: WidgetData = { sisaHariIni: 0, sisaMinggu: 0 };
 
 function render(
   props: WidgetTaskHandlerProps,
-  data: { sisaHariIni: number; sisaMinggu: number },
+  data: WidgetData,
   state: 'loading' | 'ready' | 'error',
+  hidden: boolean,
 ) {
-  const payload = { ...data, state };
+  const { width, height } = props.widgetInfo;
+  const payload = { ...data, state, hidden, width, height };
+
   props.renderWidget({
     light: <BudgetWidget data={payload} theme="light" />,
     dark: <BudgetWidget data={payload} theme="dark" />,
@@ -17,23 +23,29 @@ function render(
 }
 
 /**
- * Dipanggil Android saat widget ditambah, di-resize, atau di-refresh berkala.
- * Saat WIDGET_ADDED, render placeholder dulu supaya widget tidak kosong.
+ * Dipanggil Android saat widget ditambah, di-resize, di-refresh berkala,
+ * atau saat tombol "Tutup/Lihat" ditekan.
  */
 export async function widgetTaskHandler(props: WidgetTaskHandlerProps) {
   if (props.widgetInfo.widgetName !== BUDGET_WIDGET_NAME) return;
   if (props.widgetAction === 'WIDGET_DELETED') return;
 
-  const empty = { sisaHariIni: 0, sisaMinggu: 0 };
+  let hidden = await getWidgetHidden();
+
+  if (props.widgetAction === 'WIDGET_CLICK') {
+    if (props.clickAction !== 'TOGGLE_HIDDEN') return;
+    hidden = !hidden;
+    await setWidgetHidden(hidden);
+  }
 
   if (props.widgetAction === 'WIDGET_ADDED') {
-    render(props, empty, 'loading');
+    render(props, EMPTY, 'loading', hidden);
   }
 
   try {
     const data = await loadWidgetData();
-    render(props, data, 'ready');
+    render(props, data, 'ready', hidden);
   } catch {
-    render(props, empty, 'error');
+    render(props, EMPTY, 'error', hidden);
   }
 }

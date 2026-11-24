@@ -26,8 +26,9 @@ SQLite device, backup lewat file JSON.
   plus sisihkan/tarik manual, **target**, dan **sesuaikan saldo** (koreksi tanpa
   mengubah jatah mingguan)
 - **Ringkasan bulanan** — pengeluaran per kategori, pemasukan, tabungan, selisih
-- **Widget home screen** — sisa hari ini & minggu ini; tambahkan dari
-  Setelan → Tampilan → “Widget home screen” (khusus APK, bukan Expo Go)
+- **Widget home screen** — sisa hari ini & minggu ini, bisa di-resize, tombol
+  **Tutup/Lihat** untuk menyembunyikan saldo; tambahkan dari Setelan → Tampilan
+  (khusus APK, bukan Expo Go)
 - **Dark mode** — ikut sistem atau pilih Terang/Gelap; palet charcoal, bukan hitam pekat
 - **Tambah cepat** — tulis “kopi 18rb” atau “kemarin parkir 5rb”; parser lokal jalan
   offline, AI Gemini opsional untuk kalimat bebas
